@@ -1,6 +1,6 @@
 
 package GUI;
-import demo1.User;
+import Database.User;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Tab;
