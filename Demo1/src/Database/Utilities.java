@@ -11,11 +11,16 @@ package Database;
  */
 public class Utilities 
 {
-    public String hash(String password)
+    public void hash(String password)
     {
-         password=password+"123540";
          
-         return password;
+         
         
+        
+    }
+    
+    public void dehash(String password)
+    {
+          
     }
 }
