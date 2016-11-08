@@ -1,5 +1,6 @@
 
 package GUI;
+import demo1.User;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Tab;
@@ -80,6 +81,18 @@ public class GUI
         
         registerGrid.add(Save,0,5);
         registerGrid.add(checkConnect,1,5);
+        
+        Save.setOnAction(e->
+        {
+            String firstnamec=firstnameInput.getText();
+            String lastnamec=lastnameInput.getText();
+            String emailc=emailInput.getText();
+            String passwordc=passwordInput.getText();
+            String Careerc=posInput.getText();
+            
+            User u=new User(firstnamec,lastnamec,emailc,passwordc,Careerc);
+            
+        });
         
         return registerGrid;
     }
