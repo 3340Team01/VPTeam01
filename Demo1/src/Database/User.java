@@ -18,7 +18,7 @@ public class User
         
         this.Lastname = Lastname;
         this.email = email;
-        this.Password = u.hash(Password);
+        this.Password = 
         this.Career = Career;
         this.firstname = firstname;
     }
