@@ -14,7 +14,7 @@ import java.sql.DatabaseMetaData;
 
 /**
  *
- * @author E
+ * @author Eli (function interfacing)
  */
 public class DB 
 {
@@ -37,17 +37,22 @@ public class DB
     * This constructor will automatically connect to the database and check the
     * server and check if the database exist. If not it will create it.
    */
-   public DB() {
-       try {
+   public DB() 
+   {
+       try
+       {
            Class.forName(JDBC_DRIVER); // Load the driver
            dbCheck(DriverManager.getConnection(DB_URL,USER,PASS));
            conn = DriverManager.getConnection(DB_URL + "VaqPaqTestDB",USER,PASS);
        }
-       catch (SQLException e) {
-           System.out.println("ERROR Could not connect to the database.");
+       catch (SQLException e) 
+       {
+           
+           System.out.println(e.getMessage());
            
        }
-       catch (ClassNotFoundException e){
+       catch (ClassNotFoundException e)
+       {
            System.out.println("Please ensure you have mysql connector jar linked to the project.");
        }
    }
@@ -60,37 +65,42 @@ public class DB
     */
    private void dbCheck(Connection connectionTest)
    {
-       try {
+       try 
+       {
            // Bool variable that will change depending if the database is there. We assume the database does not exist.
-           Boolean isThere = false;
+           Boolean exist = false;
            result = connectionTest.getMetaData().getCatalogs();
            if(!result.first()) //Check if database is empty.
            {
                dbInit(connectionTest);
                return; //Exit the function since we have just created the database.No need for iteration of the rest of the rows.
            }
-           result.beforeFirst(); // Move the cursor before the first to prepare for iteration.
-           while(result.next()) {
-               if(result.getString(1).equalsIgnoreCase("VaqPaqTestDB"))
-                   isThere = true;
+           result.beforeFirst(); //Moves the cursor to the front of this ResultSet object, just before the first row to prepare for iteration.
+           while(result.next()) 
+           {
+               if(result.getString(1).equalsIgnoreCase("VaqPaq"))
+                   exist = true;
                    
            }
-           if(!isThere)
+           if(!exist)
                dbInit(connectionTest);
        }
-       catch (SQLException e){
+       catch (SQLException e)
+       {
            System.out.println("Error could not access the database.");
        }
    }
    
    private void dbInit(Connection connect)
    {
-       try {
-           String sql = "CREATE DATABaSE VaqPaqTestDB";
+       try 
+       {
+           String sql = "CREATE DATABASE VaqPaq";
            stmt = connect.createStatement();
            int holder = stmt.executeUpdate(sql);
        }
-       catch (SQLException e){
+       catch (SQLException e)
+       {
            System.out.println("ERROR Could not access the database");
        }
    
@@ -100,8 +110,6 @@ public class DB
    {
    
    }
-   public static void main(String[] args){
-       DB p = new DB();
-   }
+  
    
 }
