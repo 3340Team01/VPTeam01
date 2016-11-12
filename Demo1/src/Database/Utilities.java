@@ -11,16 +11,28 @@ package Database;
  */
 public class Utilities 
 {
-    public void hash(String password)
-    {
-         
-         
+    /**
+    *
+    * @author Michelle
+    */
+    public static byte[] genSalt(){
+        SecureRandom random = new SecureRandom();
+        byte[] salt = new byte[32];
+        random.nextBytes(salt);
         
-        
+        return salt;
     }
     
-    public void dehash(String password)
-    {
-          
+    public static byte[] hash(String password, byte[] salt){        
+        try {
+            SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512");
+            PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), salt, 1000, 256);
+            SecretKey key = skf.generateSecret(spec);
+            byte[] hash = key.getEncoded();
+            
+            return hash;
+        } catch(NoSuchAlgorithmException | InvalidKeySpecException e){
+            throw new RuntimeException(e);
+        }
     }
 }
