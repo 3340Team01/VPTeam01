@@ -10,7 +10,8 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.ResultSet;
-import java.sql.DatabaseMetaData;
+//import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
 
 /**
  *
@@ -25,11 +26,13 @@ public class DB
     //  Database credentials
    private static final String USER = "root";
    private static final String PASS = "teamblack";
+
    
    //Fields required for queries
    private Connection conn;
    private Statement stmt;
    private ResultSet result;
+   private PreparedStatement pstmt;
    
    /**
     * @author Juan Delgado
@@ -80,7 +83,11 @@ public class DB
            while(result.next()) 
            {
                if(result.getString(1).equalsIgnoreCase("VaqPaq"))
-                   exist = true; System.out.println("nah your good man");
+
+               {
+                   exist = true;
+                   break;
+               }
                    
            }
            if(!exist)
@@ -107,10 +114,34 @@ public class DB
    
    }
    
+   /**
+    * @author Josue Rodriguez
+    * This function creates an object of statement, and then creates tables.
+    */
    private void dbInitTable()
    {
-   
+       try {
+           
+           //Creates an object of statement
+           Statement stat = conn.createStatement();
+           
+           String stat0 = "CREATE TABLE User (email varchar(20), name varchar(10), lastName varchar(15),"
+                   + "password varchar(20), primary key (email))";
+           
+           //Excutes statement
+           stat.executeUpdate(stat0);
+           
+           System.out.println("Table created succesfully");        
+           
+           stat.closeOnCompletion();
+           
+       } catch (SQLException e) {
+           System.out.println("Table could not be created");       
+       }
    }
-  
-   
+   public static void main(String[] args){
+       DB p = new DB();
+       p.dbInitTable();
+   }   
 }
+
