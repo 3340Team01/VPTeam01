@@ -24,7 +24,7 @@ public class DB
    
     //  Database credentials
    private static final String USER = "root";
-   private static final String PASS = "Skyl@r5106";
+   private static final String PASS = "teamblack";
    
    //Fields required for queries
    private Connection conn;
@@ -43,7 +43,7 @@ public class DB
        {
            Class.forName(JDBC_DRIVER); // Load the driver
            dbCheck(DriverManager.getConnection(DB_URL,USER,PASS));
-           conn = DriverManager.getConnection(DB_URL + "VaqPaqTestDB",USER,PASS);
+           conn = DriverManager.getConnection(DB_URL + "VaqPaq",USER,PASS);
        }
        catch (SQLException e) 
        {
@@ -72,6 +72,7 @@ public class DB
            result = connectionTest.getMetaData().getCatalogs();
            if(!result.first()) //Check if database is empty.
            {
+               System.out.println("no dfb");
                dbInit(connectionTest);
                return; //Exit the function since we have just created the database.No need for iteration of the rest of the rows.
            }
@@ -79,7 +80,7 @@ public class DB
            while(result.next()) 
            {
                if(result.getString(1).equalsIgnoreCase("VaqPaq"))
-                   exist = true;
+                   exist = true; System.out.println("nah your good man");
                    
            }
            if(!exist)

@@ -1,6 +1,8 @@
 
 package GUI;
-import Database.User;
+import Database.DB;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Tab;
@@ -67,6 +69,12 @@ public class GUI
         Button Save= new Button("Save");
         Button checkConnect=new Button("Check Connection");
         
+        checkConnect.setOnAction(e->
+        {
+            DB d=new DB();
+           
+        });
+        
         registerGrid.add(firstName, 0, 0);
         registerGrid.add(firstnameInput,1,0);
         registerGrid.add(lastName,0,1);
@@ -90,7 +98,7 @@ public class GUI
             String passwordc=passwordInput.getText();
             String Careerc=posInput.getText();
             
-            User u=new User(firstnamec,lastnamec,emailc,passwordc,Careerc);
+            
             
         });
         
