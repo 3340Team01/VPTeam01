@@ -1,8 +1,9 @@
 
 package GUI;
 import Database.DB;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
+import Database.DBOperations;
+import Database.User;
+import Database.Utilities;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Tab;
@@ -20,7 +21,7 @@ public class GUI
     public HBox makeTitleBox()
     {
        HBox titleBox=new HBox();
-       
+            
        Text title=new Text("Demo1");
        title.setFont(Font.font ("Verdana",20));
        title.setFill(Color.BLACK);
@@ -66,13 +67,31 @@ public class GUI
         TextField passwordInput=new TextField();
         TextField posInput=new TextField();
         
-        Button Save= new Button("Save");
+        Button Save= new Button("Submit");
         Button checkConnect=new Button("Check Connection");
         
         checkConnect.setOnAction(e->
         {
             DB d=new DB();
+            
+            
            
+        });
+        
+        Save.setOnAction(e->
+        {
+            System.out.println("Inserted in table Users");
+            String first=firstnameInput.getText();
+            String last=lastnameInput.getText();
+            String mail=emailInput.getText();
+            String pass=passwordInput.getText();
+            
+            
+            User u=new User(last,first,pass,mail);
+            DBOperations d =new DBOperations();
+                d.registerUser(u);
+            
+  
         });
         
         registerGrid.add(firstName, 0, 0);
@@ -90,17 +109,6 @@ public class GUI
         registerGrid.add(Save,0,5);
         registerGrid.add(checkConnect,1,5);
         
-        Save.setOnAction(e->
-        {
-            String firstnamec=firstnameInput.getText();
-            String lastnamec=lastnameInput.getText();
-            String emailc=emailInput.getText();
-            String passwordc=passwordInput.getText();
-            String Careerc=posInput.getText();
-            
-            
-            
-        });
         
         return registerGrid;
     }

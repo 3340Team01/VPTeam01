@@ -12,23 +12,26 @@ package Database;
 public class User 
 {
 
-    public User(String Lastname, String email, String Password, String Career, String firstname) 
-    {
-        Utilities u=new Utilities();
-        
-        this.Lastname = Lastname;
-        this.email = email;
-        this.Password = 
-        this.Career = Career;
-        this.firstname = firstname;
-    }
-    
     String Lastname;
     String email;
     String Password;
     String Career;
     String firstname;
-
+    
+    
+     
+     
+    public User(String Lastname, String firstname, String Password, String email ) 
+    {
+       
+         Utilities u=new Utilities();
+         
+        this.Lastname = Lastname;
+        this.email = email;
+        this.Password =Password;
+        this.firstname = firstname;
+    }
+    
     public String getFirstname() {
         return firstname;
     }

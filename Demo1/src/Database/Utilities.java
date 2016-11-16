@@ -22,7 +22,29 @@ public class Utilities
     *
     * @author Michelle
     */
-    public static byte[] genSalt(){
+    
+     public static byte[] hash(String password)
+    {        
+        byte[] salt=genSalt();
+        
+        try
+        {
+            SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512");
+            PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), salt, 1000, 256);
+            SecretKey key = skf.generateSecret(spec);
+            byte[] hash = key.getEncoded();
+            
+            return hash;
+            
+        } 
+        catch(NoSuchAlgorithmException | InvalidKeySpecException e)
+            {
+                throw new RuntimeException(e);
+            }
+    }
+     
+    public static byte[] genSalt()
+    {
         SecureRandom random = new SecureRandom();
         byte[] salt = new byte[32];
         random.nextBytes(salt);
@@ -30,16 +52,5 @@ public class Utilities
         return salt;
     }
     
-    public static byte[] hash(String password, byte[] salt){        
-        try {
-            SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512");
-            PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), salt, 1000, 256);
-            SecretKey key = skf.generateSecret(spec);
-            byte[] hash = key.getEncoded();
-            
-            return hash;
-        } catch(NoSuchAlgorithmException | InvalidKeySpecException e){
-            throw new RuntimeException(e);
-        }
-    }
+   
 }

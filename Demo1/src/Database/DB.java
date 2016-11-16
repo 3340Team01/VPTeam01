@@ -20,16 +20,17 @@ import java.sql.PreparedStatement;
 public class DB 
 {
     // JDBC driver name and database URL
-   private static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";  
-   private static final String DB_URL = "jdbc:mysql://localhost/";
+   protected static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";  
+   protected static final String DB_URL = "jdbc:mysql://localhost/";
    
     //  Database credentials
-   private static final String USER = "root";
-   private static final String PASS = "teamblack";
+   protected static final String USER = "root";
+   protected static final String PASS = "teamblack";
+   protected static final String DBname="vaqpack";
 
    
    //Fields required for queries
-   private Connection conn;
+   protected Connection conn;
    private Statement stmt;
    private ResultSet result;
    private PreparedStatement pstmt;
@@ -46,12 +47,12 @@ public class DB
        {
            Class.forName(JDBC_DRIVER); // Load the driver
            dbCheck(DriverManager.getConnection(DB_URL,USER,PASS));
-           conn = DriverManager.getConnection(DB_URL + "VaqPaq",USER,PASS);
+           conn = DriverManager.getConnection(DB_URL + DBname,USER,PASS);
        }
        catch (SQLException e) 
        {
            
-           System.out.println(e.getMessage());
+           System.out.println("There is an error: "+e.getMessage());
            
        }
        catch (ClassNotFoundException e)
@@ -82,7 +83,7 @@ public class DB
            result.beforeFirst(); //Moves the cursor to the front of this ResultSet object, just before the first row to prepare for iteration.
            while(result.next()) 
            {
-               if(result.getString(1).equalsIgnoreCase("VaqPaq"))
+               if(result.getString(1).equalsIgnoreCase(DBname))
 
                {
                    exist = true;
@@ -103,9 +104,11 @@ public class DB
    {
        try 
        {
-           String sql = "CREATE DATABASE VaqPaq";
+           String sql = "CREATE DATABASE "+DBname;
            stmt = connect.createStatement();
            int holder = stmt.executeUpdate(sql);
+           dbInitTable();
+           
        }
        catch (SQLException e)
        {
@@ -123,9 +126,11 @@ public class DB
        try {
            
            //Creates an object of statement
+            String DB_URL = "jdbc:mysql://localhost/"+DBname;
+           conn = DriverManager.getConnection(DB_URL, USER, PASS);
            Statement stat = conn.createStatement();
            
-           String stat0 = "CREATE TABLE User (email varchar(20), name varchar(10), lastName varchar(15),"
+           String stat0 = "CREATE TABLE Users (email varchar(20), first varchar(10), last varchar(15),"
                    + "password varchar(20), primary key (email))";
            
            //Excutes statement
@@ -136,12 +141,9 @@ public class DB
            stat.closeOnCompletion();
            
        } catch (SQLException e) {
-           System.out.println("Table could not be created");       
+           System.out.println("Error creating table: "+e.getMessage());       
        }
    }
-   public static void main(String[] args){
-       DB p = new DB();
-       p.dbInitTable();
-   }   
+      
 }
 
