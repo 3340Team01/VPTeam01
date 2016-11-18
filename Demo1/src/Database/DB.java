@@ -107,7 +107,7 @@ public class DB
            String sql = "CREATE DATABASE "+DBname;
            stmt = connect.createStatement();
            int holder = stmt.executeUpdate(sql);
-           dbInitTable();
+           dbInitTables();
            
        }
        catch (SQLException e)
@@ -121,24 +121,30 @@ public class DB
     * @author Josue Rodriguez
     * This function creates an object of statement, and then creates tables.
     */
-   private void dbInitTable()
+   private void dbInitTables()
    {
-       try {
+       try 
+       {
            
            //Creates an object of statement
             String DB_URL = "jdbc:mysql://localhost/"+DBname;
            conn = DriverManager.getConnection(DB_URL, USER, PASS);
-           Statement stat = conn.createStatement();
+           Statement con = conn.createStatement();
            
-           String stat0 = "CREATE TABLE Users (email varchar(20), first varchar(10), last varchar(15),"
+           String sql0 = "CREATE TABLE Users (email varchar(20), first varchar(10), last varchar(15),"
                    + "password varchar(20), primary key (email))";
+         
+           con.executeUpdate(sql0);
            
-           //Excutes statement
-           stat.executeUpdate(stat0);
+           String sql1="CREATE TABLE Courses";
+           con.executeQuery(sql1);
            
-           System.out.println("Table created succesfully");        
+           String sql2="CREATE TABLE Reminders";
+           con.executeQuery(sql2);
            
-           stat.closeOnCompletion();
+          
+           
+           con.closeOnCompletion();
            
        } catch (SQLException e) {
            System.out.println("Error creating table: "+e.getMessage());       

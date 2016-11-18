@@ -23,7 +23,40 @@ public class Utilities
     * @author Michelle
     */
     
-     public static byte[] hash(String password)
+    
+    void encrypt(String pass,String salt)
+    {
+        if(salt==null)
+        {
+            //call genSalt()
+        }
+        else
+        {
+            //apply the passed salt to the passed password then encrypt.
+        }
+        
+        /*
+            accept a string
+            call generate salt()
+            apply generated salt to string
+            use some hash or sercurity function to encrypt the (string + salt)
+            create a structure or array
+            place within it the newly encrypted string and the salt that wash generated
+            reutrnt the array/structure
+
+        */
+    }
+    
+    void genSalt()
+    {
+        /*
+            generates a random salt somehow. Random character generator
+        
+        */
+    }
+    /*
+    
+    public static byte[] hash(String password)
     {        
         byte[] salt=genSalt();
         
@@ -52,5 +85,14 @@ public class Utilities
         return salt;
     }
     
+    public void checkSalt()
+    {
+         
+            
+        
+        
+    }
+    
+    */
    
 }

@@ -12,11 +12,12 @@ package Database;
 public class User 
 {
 
-    String Lastname;
+    String last;
     String email;
-    String Password;
-    String Career;
-    String firstname;
+    String pass;
+    String first;
+    String hash;
+    String salt;
     
     
      
@@ -30,6 +31,12 @@ public class User
         this.email = email;
         this.Password =Password;
         this.firstname = firstname;
+    }
+    
+    public void getUser(/*email*/)
+    {   
+        
+        /*to be used by the program to create a obejct containing user info expect for password*/
     }
     
     public String getFirstname() {
