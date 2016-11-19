@@ -159,8 +159,41 @@ public class DBOperations {
        }
    }
 
-    protected void login() {
-
+    
+         
+    protected boolean login(String email, String pass)
+    {
+        String dbMail=null;
+        String dbPass=null;
+        String dbSalt=null;
+        
+        Utilities u=new Utilities();
+        
+        try
+        {
+              conn = DriverManager.getConnection(DB_URL + DBname,USER,PASS);
+              stmt=conn.createStatement();
+              String sql= "SELECT email ,pass, FROM Users ";
+              ResultSet rs=stmt.executeQuery(sql);
+                  dbSalt=rs.getString("salt");
+                  dbMail=rs.getString("email");
+                  dbPass=rs.getString("pass");
+                  
+              
+        }
+        catch(SQLException e)
+        {
+            e.getMessage();
+        }
+        
+        String encPass=u.encrypt(pass,dbSalt);
+        if (Objects.equals(encPass, dbMail))
+        {
+            return true;
+        }
+        
+        else return false;
+    
     }
 
     /* @author Eli */
