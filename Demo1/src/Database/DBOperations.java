@@ -5,41 +5,51 @@
  */
 package Database;
 
-import static Database.DB.JDBC_DRIVER;
+//import static Database.DB.JDBC_DRIVER;
+import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.ResultSet;
+//import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
 
 /**
  *
  * @author Eli function protoyping
  */
-public class DBOperations
-{
- 
-    protected void login()
-    {
-        
-    }
+public class DBOperations {
     
-    /* @author Eli */
-    public void register( User info)
-    {
-         try
+    private static DBOperations databaseSingleton = new DBOperations();
+    
+    // JDBC driver name and database URL
+    protected static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
+    protected static final String DB_URL = "jdbc:mysql://localhost/";
+
+    //  Database credentials
+    protected static final String USER = "root";
+    protected static final String PASS = "Skyl@r5106";
+    protected static final String DBname = "vaqpack";
+
+    //Fields required for queries
+    private Connection conn;
+    private Statement stmt;
+    private ResultSet result;
+    private PreparedStatement pstmt;
+
+   /**
+    * @author Juan Delgado
+    * Constructor.
+    * This constructor will automatically connect to the database and check the
+    * server and check if the database exist. If not it will create it.
+   */
+   private DBOperations() 
+   {
+       try
        {
            Class.forName(JDBC_DRIVER); // Load the driver
-           conn = DriverManager.getConnection(DB_URL + DBname,USER,PASS);
-           
-         String first=info.firstname;
-         String last=info.Lastname;
-         String email=info.email;
-         String password=info.Password;
-         
-         Statement stmt = conn.createStatement();
-         String sql="INSERT INTO Users VALUES ("+email+","+first+","+last+","+","+password+")";
-      
-         stmt.executeUpdate(sql);
-         System.out.println("Inserted records into the table Users");
+           dbCheck(DriverManager.getConnection(DB_URL,USER,PASS)); // Check to see if the database exists
+           conn = DriverManager.getConnection(DB_URL + DBname,USER,PASS); // Connection that connects to our database.
        }
        catch (SQLException e) 
        {
@@ -51,12 +61,128 @@ public class DBOperations
        {
            System.out.println("Please ensure you have mysql connector jar linked to the project.");
        }
-  
+   }
+   /**
+    * @author Juan Delgado
+    * returns the database object. Which is a singleton.
+    * @return 
+    */
+   public static DBOperations theDatabase()
+   {
+       return databaseSingleton;
+   }
+   /**
+    * @author Juan Delgado
+    * This function will check if the database exist. If not it will call another
+    * function to create it.
+    * @param Connection 
+    */
+   private void dbCheck(Connection connectionTest)
+   {
+       try 
+       {
+           // Bool variable that will change depending if the database is there. We assume the database does not exist.
+           Boolean exist = false;
+           result = connectionTest.getMetaData().getCatalogs();
+           if(!result.first()) //Check if database is empty.
+           {
+               System.out.println("no dfb");
+               dbInit(connectionTest);
+               return; //Exit the function since we have just created the database.No need for iteration of the rest of the rows.
+           }
+           result.beforeFirst(); //Moves the cursor to the front of this ResultSet object, just before the first row to prepare for iteration.
+           while(result.next()) 
+           {
+               if(result.getString(1).equalsIgnoreCase(DBname))
+
+               {
+                   exist = true;
+                   break;
+               }
+                   
+           }
+           if(!exist)
+               dbInit(connectionTest);
+       }
+       catch (SQLException e)
+       {
+           System.out.println("Error could not access the database.");
+       }
+   }
+   /**
+    * @author Juan Delgado
+    * initializes the Database for the VaqPaq project.
+    * @param connect 
+    */
+   
+   private void dbInit(Connection connect)
+   {
+       try 
+       {
+           String sql = "CREATE DATABASE "+DBname;
+           stmt = connect.createStatement();
+           int holder = stmt.executeUpdate(sql);
+           dbInitTables();
+           
+       }
+       catch (SQLException e)
+       {
+           System.out.println("ERROR Could not access the database");
+       }
+   
+   }
+      private void dbInitTables()
+   {
+       try 
+       {
+           
+           //Creates an object of statement
+           stmt = conn.createStatement();
+           
+           String sql0 = "CREATE TABLE Users (email varchar(20), first varchar(10), last varchar(15),"
+                   + "password varchar(20), primary key (email))";
          
+           stmt.executeUpdate(sql0);
+           
+           String sql1="CREATE TABLE Courses";
+           stmt.executeQuery(sql1);
+           
+           String sql2="CREATE TABLE Reminders";
+           stmt.executeQuery(sql2);
+           
+          
+           
+           stmt.closeOnCompletion();
+           
+       } catch (SQLException e) {
+           System.out.println("Error creating table: "+e.getMessage());       
+       }
+   }
+
+    protected void login() {
+
     }
-    
-    public void newXml(/*xml file or appropriate strings like "prefix", "number", "hours". or an object with this info*/)
-    {
+
+    /* @author Eli */
+    public void register(String firstname, String lastname, String email, String password) {
+        try {
+            Class.forName(JDBC_DRIVER); // Load the driver
+            conn = DriverManager.getConnection(DB_URL + DBname, USER, PASS);
+            Statement stmt = conn.createStatement();
+            String sql = "INSERT INTO Users VALUES (" + email + "," + firstname + "," + lastname + "," + "," + password + ")";
+            stmt.executeUpdate(sql);
+            System.out.println("Inserted records into the table Users");
+        } catch (SQLException e) {
+
+            System.out.println("There is an error: " + e.getMessage());
+
+        } catch (ClassNotFoundException e) {
+            System.out.println("Please ensure you have mysql connector jar linked to the project.");
+        }
+
+    }
+
+    public void newXml(/*xml file or appropriate strings like "prefix", "number", "hours". or an object with this info*/) {
         /* 
             Extract info from object, array, xml file or get info from strings passed.
             try to open connection to db.
@@ -65,10 +191,12 @@ public class DBOperations
             ELSE    INSERT new ROW INTO TABLE COURSES with info like "prefix", "number", "hours".
             close connection, return TRUE
         
-        */
+         */
     }
-    public void addCourse(/* A unique USER credetial like email or maybe A object of class USER with all the info and a OBJECT containg COURSE info or the xml file itself */)
-    {
+
+    public void addCourse(String department, String prefix, String number, String name, String description, 
+            String creditHours, String lectureHours, String labHours, String level, String scheduleType,
+            String prerequiste, String corequisite, String courseAttributes) {
         /*
             Open connection to DB
             SELECT from USER TABLE the ROW which has the CREDENTIAL of the USER passed above.
@@ -79,15 +207,12 @@ public class DBOperations
             IF FOUND, create a foreign key/link from the USER in question to the appropriate course ROW in the COURSES TABLE
             ON success return TRUE
             close connection, exit
-        
-       
-        */
-                
+         */
+
     }
-    
-    public void edCourse(/*OBJECT containing xml info like PREFIX, COURSE NUMBER, something unique*/)
-    {
-          /*
+
+    public void edCourse(/*OBJECT containing xml info like PREFIX, COURSE NUMBER, something unique*/) {
+        /*
             Our COURSES table only keeps track of vital details of a course. LIke prefix, number, hours, type of class...lecture or lab
             EXTRACT the info from the object, WHERE "INFO" is PREFIX, COURSES NUMBER, HOURS...
             OPEN DB CONNECTION
@@ -98,12 +223,11 @@ public class DBOperations
             CLOSE DB CONNECITON
             
         
-        */
-                  
-               
+         */
+
     }
-    public void rmCourse(/* OBJECT contaiing USER credentials, COURSE to be removed. WHERE COURSE CAN be a string wtth course prefix or maybe a OBJECT itself*/)
-    {
+
+    public void rmCourse(/* OBJECT contaiing USER credentials, COURSE to be removed. WHERE COURSE CAN be a string wtth course prefix or maybe a OBJECT itself*/) {
         /* 
             EXTRACT USER credentials
             Open DB connection
@@ -113,12 +237,11 @@ public class DBOperations
             Sever the link.
             RETURN TRUE FOR SUCCESS, FALSE FOR FAILURE
         
-        */
+         */
     }
-    
-    public void addRem(/*object/container with details concerning the reminder to be added, USER OBJ */)
-    {
-            /*
+
+    public void addRem(/*object/container with details concerning the reminder to be added, USER OBJ */) {
+        /*
                 TRY OPEN connection to DB
                 TRY INSERT INTO "REMINDER" TABLE, NEW ROW, contating detials from reminder object passed.
                 CHECK that the "reminder" to be added doesnt exist.
@@ -140,18 +263,11 @@ public class DBOperations
                  
                 
                 
-            */
+         */
     }
-    
-   
-    
- 
-    
-    public void rmRem(/*object/container with details concerning the reminder to be removed */)
-    {
+
+    public void rmRem(/*object/container with details concerning the reminder to be removed */) {
         /* same as addRem, just the delte version, prety much*/
     }
-    
-    
-  
+
 }
