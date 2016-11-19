@@ -5,12 +5,11 @@
  */
 package Database;
 
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.security.spec.InvalidKeySpecException;
+import java.util.Base64;
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
 
 /**
  *
@@ -24,15 +23,31 @@ public class Utilities
     */
     
     
-    void encrypt(String pass,String salt)
+    void encrypt(String pass,String salt) throws Exception
     {
         if(salt==null)
         {
-            //call genSalt()
+            // Call genSalt()
+            this.genSalt();
         }
         else
         {
-            //apply the passed salt to the passed password then encrypt.
+            // Apply the passed salt to the passed password, then encrypt
+            KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
+            keyGenerator.init(128);
+            key = keyGenerator.generateKey();
+            cipher = Cipher.getInstance("AES");
+            String saltedString = pass + salt;
+                
+            // Encryption
+            byte[] plainTextByte = saltedString.getBytes();
+            cipher.init(Cipher.ENCRYPT_MODE, key);
+            byte[] encryptedByte = cipher.doFinal(plainTextByte);
+            Base64.Encoder encoder = Base64.getEncoder();
+            String encryptedText = encoder.encodeToString(encryptedByte);
+            
+            // String array with encrypted password and salt
+            String passSaltInfo[] = {encryptedText, salt};
         }
         
         /*
@@ -49,10 +64,10 @@ public class Utilities
     
     void genSalt()
     {
-        /*
-            generates a random salt somehow. Random character generator
-        
-        */
+        // Generates a random salt
+        SecureRandom random = new SecureRandom();
+        byte[] salt = new byte[32];
+        random.nextBytes(salt);
     }
     /*
     
