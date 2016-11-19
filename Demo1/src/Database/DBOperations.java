@@ -137,22 +137,27 @@ public class DBOperations {
        {
            
            //Creates an object of statement
-           stmt = conn.createStatement();
+            String DB_URL = "jdbc:mysql://localhost/"+DBname;
+           conn = DriverManager.getConnection(DB_URL, USER, PASS);
+           Statement con = conn.createStatement();
            
            String sql0 = "CREATE TABLE Users (email varchar(20), first varchar(10), last varchar(15),"
                    + "password varchar(20), primary key (email))";
          
-           stmt.executeUpdate(sql0);
+           con.executeUpdate(sql0);
            
-           String sql1="CREATE TABLE Courses";
-           stmt.executeQuery(sql1);
+           String sql1="CREATE TABLE Course (department varchar(20), prefix varchar(4), number varchar(4), name varchar(30), description varchar(300),"
+                   + "credit_hours varchar(10), lecture_hours varchar(10), lab_hours varchar(10), level varchar(30), schedule_type varchar(20),"
+                   + "pre requisite varchar(200), co_requisite varchar(100), course_attributes varchar(100), legacy_number varchar(4),"
+                   + "cross_listed varchar(20), restrictions varchar(200), primary key (number))";
+           con.executeUpdate(sql1);
            
-           String sql2="CREATE TABLE Reminders (reminderName varchar(20), message varchar(256), currentTime time, primary key (messageName))";
-           stmt.executeQuery(sql2);
+           String sql2="CREATE TABLE Reminders";
+           con.executeQuery(sql2);
            
           
            
-           stmt.closeOnCompletion();
+           con.closeOnCompletion();
            
        } catch (SQLException e) {
            System.out.println("Error creating table: "+e.getMessage());       
@@ -302,5 +307,4 @@ public class DBOperations {
     public void rmRem(/*object/container with details concerning the reminder to be removed */) {
         /* same as addRem, just the delte version, prety much*/
     }
-
 }
