@@ -152,7 +152,7 @@ public class DBOperations {
                    + "cross_listed varchar(20), restrictions varchar(200), primary key (number))";
            con.executeUpdate(sql1);
            
-           String sql2="CREATE TABLE Reminders";
+           String sql2="CREATE TABLE Reminders (reminderName varchar(20), message varchar(256), currentTime time, primary key (reminderName))";
            con.executeQuery(sql2);
            
           
