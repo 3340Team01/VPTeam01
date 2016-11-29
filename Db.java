@@ -34,7 +34,7 @@ public class Db {
     //Fields required for queries
     private Connection conn;
     private Statement stmt;
-    private ResultSet result;
+    private ResultSet rs;
     private PreparedStatement pstmt;
 
    /**
@@ -83,17 +83,17 @@ public class Db {
        {
            // Bool variable that will change depending if the database is there. We assume the database does not exist.
            Boolean exist = false;
-           result = connectionTest.getMetaData().getCatalogs();
-           if(!result.first()) //Check if database is empty.
+           rs = connectionTest.getMetaData().getCatalogs();
+           if(!rs.first()) //Check if database is empty.
            {
                System.out.println("no dfb");
                dbInit(connectionTest);
                return; //Exit the function since we have just created the database.No need for iteration of the rest of the rows.
            }
-           result.beforeFirst(); //Moves the cursor to the front of this ResultSet object, just before the first row to prepare for iteration.
-           while(result.next()) 
+           rs.beforeFirst(); //Moves the cursor to the front of this ResultSet object, just before the first row to prepare for iteration.
+           while(rs.next()) 
            {
-               if(result.getString(1).equalsIgnoreCase(DBname))
+               if(rs.getString(1).equalsIgnoreCase(DBname))
 
                {
                    exist = true;
@@ -131,6 +131,7 @@ public class Db {
        }
    
    }
+   
       private void dbInitTables()
    {
        try 
@@ -175,37 +176,37 @@ public class Db {
          
     protected boolean login(String email, String pass)
     {
-        String dbMail=null;
-        String dbPass=null;
-        String dbSalt=null;
-        String userPass=pass;
-       
-        
-        try
-        {
-             
-              stmt=conn.createStatement();
-              String sql= "SELECT email ,password, FROM Users ";
-              ResultSet rs=stmt.executeQuery(sql);
-                  dbSalt=rs.getString("salt");
-                  dbMail=rs.getString("email");
-                  dbPass=rs.getString("pass");
-                  
-                  dbPass=dbPass+dbSalt;
-                  userPass+=dbSalt;
-  
-        }
-        catch(SQLException e)
-        {
-            e.getMessage();
-        }
-
-        if (email.equals((dbMail)) && userPass.equals((dbPass)))
-        {
+      String sql;
+      String dbPass=null;
+      String dbSalt=null;
+      boolean success=false;
+      sql="SELECT * FROM Users WHERE email= 'email'";
+      
+      try
+      {    
+          rs=stmt.executeQuery(sql);
+          
+         if(rs!=null)
+         {
+             dbPass=rs.getString("password");
+             dbSalt=rs.getString("salt");
+         }
+         else
+             return false;
+         
+         pass=pass+dbSalt;
+         dbPass+=dbSalt;       
+      }
+      catch(SQLException e)
+      {
+      
+      }
+      if((pass).equals(dbPass))
+         {
             return true;
-        }
-        
-        else return false;
+         }
+         else
+             return false;
     }
 
     /* @author Eli */
