@@ -33,7 +33,7 @@ public class User
          
         this.last = Lastname;
         this.email = email;
-        this.pass = u.encrypt(password);
+        this.pass = password;
         this.first = firstname;
     }
     

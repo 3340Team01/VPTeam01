@@ -25,14 +25,6 @@ public class Util
     * @author Michelle
     */
     
-    public String[] encrypt(String pass)
-    {
-        String passSalt[]=new String[2];
-        
-        
-        
-        return value;
-    }
     
     public String []  encrypt(String pass, String salty) throws Exception
     {   
@@ -47,7 +39,7 @@ public class Util
         else
         {
             // Apply the passed salt to the passed password, then encrypt
-    KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
+            KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
             keyGenerator.init(128);
             SecretKey key = keyGenerator.generateKey();
             Cipher cipher = Cipher.getInstance("AES");

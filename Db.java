@@ -171,54 +171,66 @@ public class Db {
         String dbMail=null;
         String dbPass=null;
         String dbSalt=null;
-        
-        Utilities u=new Utilities();
+        String userPass=pass;
+       
         
         try
         {
-              conn = DriverManager.getConnection(DB_URL + DBname,USER,PASS);
+             
               stmt=conn.createStatement();
-              String sql= "SELECT email ,pass, FROM Users ";
+              String sql= "SELECT email ,password, FROM Users ";
               ResultSet rs=stmt.executeQuery(sql);
                   dbSalt=rs.getString("salt");
                   dbMail=rs.getString("email");
                   dbPass=rs.getString("pass");
                   
-              
+                  dbPass=dbPass+dbSalt;
+                  userPass+=dbSalt;
+  
         }
         catch(SQLException e)
         {
             e.getMessage();
         }
-        
-        String encPass=u.encrypt(pass,dbSalt);
-        if (Objects.equals(encPass, dbMail))
+
+        if (email.equals((dbMail)) && userPass.equals((dbPass)))
         {
             return true;
         }
         
         else return false;
-    
     }
 
     /* @author Eli */
-    public void register(String firstname, String lastname, String email, String password) {
+    public boolean register(String firstname, String lastname, String email, String password) 
+    {
+        boolean success=false;
         try {
-            Class.forName(JDBC_DRIVER); // Load the driver
+            //Class.forName(JDBC_DRIVER); // Load the driver
             conn = DriverManager.getConnection(DB_URL + DBname, USER, PASS);
             Statement stmt = conn.createStatement();
             String sql = "INSERT INTO Users VALUES (" + email + "," + firstname + "," + lastname + "," + "," + password + ")";
             stmt.executeUpdate(sql);
             System.out.println("Inserted records into the table Users");
-        } catch (SQLException e) {
+            
+            success=true;
+        } 
+        catch (SQLException e) 
+        {
 
             System.out.println("There is an error: " + e.getMessage());
 
-        } catch (ClassNotFoundException e) {
+        } 
+        /*catch (ClassNotFoundException e) {
             System.out.println("Please ensure you have mysql connector jar linked to the project.");
-        }
-
-    }
+        }*/
+        if(success)
+        return true;
+        
+        else 
+        return false;
+    
+    }   
 
     public void newXml(/*xml file or appropriate strings like "prefix", "number", "hours". or an object with this info*/) {
         /* 
