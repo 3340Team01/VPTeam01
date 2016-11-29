@@ -140,22 +140,29 @@ public class Db {
             String DB_URL = "jdbc:mysql://localhost/"+DBname;
            conn = DriverManager.getConnection(DB_URL, USER, PASS);
            Statement con = conn.createStatement();
+           String sql=null;
            
-           String sql0 = "CREATE TABLE Users (email varchar(20), first varchar(10), last varchar(15),"
-                   + "password varchar(20), primary key (email))";
+           sql = "CREATE TABLE Users (email varchar(20), first varchar(10), last varchar(15),"
+                   + "password varchar(20), pic varbinary(MAX), PRIMARY KEY (email))";
          
-           con.executeUpdate(sql0);
+           con.executeUpdate(sql);
            
-           String sql1="CREATE TABLE Course (department varchar(20), prefix varchar(4), number varchar(4), name varchar(30), description varchar(300),"
-                   + "credit_hours varchar(10), lecture_hours varchar(10), lab_hours varchar(10), level varchar(30), schedule_type varchar(20),"
-                   + "pre requisite varchar(200), co_requisite varchar(100), course_attributes varchar(100), legacy_number varchar(4),"
-                   + "cross_listed varchar(20), restrictions varchar(200), primary key (number))";
-           con.executeUpdate(sql1);
+           sql="CREATE TABLE Courses (prefix varchar(4), number int(4), name varchar(30)"
+                   +",FOREIGN KEY number REFERENCES Users(email) )";
+                 
+           con.executeUpdate(sql);
            
-           String sql2="CREATE TABLE Reminders (reminderName varchar(20), message varchar(256), currentTime time, primary key (reminderName))";
-           con.executeQuery(sql2);
+           sql="CREATE TABLE Style (name varchar(56), cat varchar(56), FOREIGN KEY name REFERENCES Users(email),"+
+                   "PRIMARY KEY name )";
+           con.executeUpdate(sql);
            
-          
+           sql="CREATE TABLE Reminders (reminderName varchar(20), message varchar(256), DATE date, TIME time, primary key (reminderName))";
+           
+           con.executeQuery(sql);
+           
+           sql="CREATE TABLE Xml ( name varchar(56), cat(56) "+" PRIMARY KEY name, FOREIGN KEY name)";
+           
+           con.executeUpdate(sql);
            
            con.closeOnCompletion();
            

@@ -7,7 +7,7 @@ package DB;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import javafx.scene.image.Image;
 /**
  *
  * @author E
@@ -23,6 +23,8 @@ public class User
     String salt;
     List courses;
     List reminders;
+    
+    Image pic;
     
     
     
