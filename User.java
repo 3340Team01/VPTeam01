@@ -21,6 +21,7 @@ public class User
     String first;
     String hash;
     String salt;
+    String pos;
     List courses;
     List reminders;
     
