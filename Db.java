@@ -153,18 +153,18 @@ public class Db {
                    +",FOREIGN KEY (courseNumber) REFERENCES Users (email), PRIMARY KEY (courseNumber) )";
            
            pstmt=conn2.prepareStatement(sql);
-           pstmt.executeUpdate(sql);
+           pstmt.executeUpdate();
            
            sql="CREATE TABLE Style (name varchar(56), category varchar(56), FOREIGN KEY (name) REFERENCES Users (email),"+
                    "PRIMARY KEY (name) )";
           pstmt=conn2.prepareStatement(sql);
-           pstmt.executeUpdate(sql);
+           pstmt.executeUpdate();
            
            sql="CREATE TABLE Reminders (reminderName varchar(20), message varchar(256), DATE date, TIME time, PRIMARY KEY (reminderName)  "
                    + ", FOREIGN KEY (reminderName ) REFERENCES Users (email) )";
            
            pstmt=conn2.prepareStatement(sql);
-           pstmt.executeUpdate(sql);
+           pstmt.executeUpdate();
            /*
            sql="CREATE TABLE Xml ( name varchar(56), cat(56) "+" PRIMARY KEY name, FOREIGN KEY name)";
            
@@ -179,7 +179,7 @@ public class Db {
 
     
     /*@author eli */     
-    protected boolean login(String email, String pass, User u)
+    public boolean login(String email, String pass, User u)
     {
       String sql;
       String dbPass=null;
@@ -189,14 +189,12 @@ public class Db {
       String dbEmail=null;
       String dbPos=null;
       List<String> courses=null;
-      
-      
-      
+
       sql="SELECT * FROM Users WHERE email= 'email'";
       
       try
-      {    
-          rs=pstmt.executeQuery(sql);
+      {   pstmt=conn.prepareStatement(sql);
+          rs=pstmt.executeQuery();
           
          if(rs!=null)
          {
@@ -222,7 +220,7 @@ public class Db {
          {
              u.setFirst(dbFirst);
              u.setLast(dbLast);
-             u.setEmail(dbEmail);
+             u.setEmail("ham");
              u.setPos(dbPos);
              //u.setCourses();
             return true;

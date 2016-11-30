@@ -14,6 +14,8 @@ import javafx.scene.image.Image;
  */
 public class User 
 {
+
+   
     
     String last;
     String email;
@@ -27,6 +29,26 @@ public class User
     Image pic;
     int permission;
     
+     public User(String last, String email, String pass, String first, String hash, String salt, String pos, List courses, List reminders, Image pic, int permission) 
+     {
+        this.last = last;
+        this.email = email;
+        this.pass = pass;
+        this.first = first;
+        this.hash = hash;
+        this.salt = salt;
+        this.pos = pos;
+        this.courses = courses;
+        this.reminders = reminders;
+        this.pic = pic;
+        this.permission = permission;
+    }
+     
+    public User()
+    {
+        
+    }
+     
     public String getLast() {
         return last;
     }
