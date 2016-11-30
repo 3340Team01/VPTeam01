@@ -14,6 +14,7 @@ import java.sql.ResultSet;
 //import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.util.List;
+import DB.User;
 
 
  /*
@@ -29,7 +30,7 @@ public class Db {
 
     //  Database credentials
     protected static final String USER = "root";
-    protected static final String PASS = "Skyl@r5106";
+    protected static final String PASS = "teamblack";
     protected static final String DBname = "vaqpack";
 
     //Fields required for queries
@@ -55,7 +56,7 @@ public class Db {
        catch (SQLException e) 
        {
            
-           System.out.println("There is an error: "+e.getMessage());
+           System.out.println("There is an error HERE: "+e.getMessage());
            
        }
        catch (ClassNotFoundException e)
@@ -87,7 +88,7 @@ public class Db {
            rs = connectionTest.getMetaData().getCatalogs();
            if(!rs.first()) //Check if database is empty.
            {
-               System.out.println("no dfb");
+               System.out.println("NO DB!!!!!!!!!!!!!!!!!");
                dbInit(connectionTest);
                return; //Exit the function since we have just created the database.No need for iteration of the rest of the rows.
            }
@@ -134,41 +135,47 @@ public class Db {
    }
    
    /* @author eli */ 
-   private void dbInitTables()
+  private void dbInitTables()
    {
        try 
        {
            
+           
            String sql=null;
+           Connection conn2 = DriverManager.getConnection(DB_URL + DBname,USER,PASS);
+           sql = "CREATE TABLE Users ( email varchar(20), first varchar(10), last varchar(15),"
+                   + "password varchar(20), salt varchar(256), pos varchar(56), permission BIT,pic BLOB, PRIMARY KEY (email))";
            
-           sql = "CREATE TABLE Users (email varchar(20), first varchar(10), last varchar(15),"
-                   + "password varchar(20), salt varchar(256), pos varchar(56), permission BIT  pic varbinary(MAX), PRIMARY KEY (email))";
-         
+           pstmt=conn2.prepareStatement(sql);
+           pstmt.executeUpdate();
+           
+           sql="CREATE TABLE Courses (prefix varchar(4), courseNumber varchar(4), name varchar(30), xml LONGTEXT"
+                   +",FOREIGN KEY (courseNumber) REFERENCES Users (email), PRIMARY KEY (courseNumber) )";
+           
+           pstmt=conn2.prepareStatement(sql);
            pstmt.executeUpdate(sql);
            
-           sql="CREATE TABLE Courses (prefix varchar(4), number int(4), name varchar(30), xml longtext(MAX)"
-                   +",FOREIGN KEY number REFERENCES Users(email) )";
-                 
+           sql="CREATE TABLE Style (name varchar(56), category varchar(56), FOREIGN KEY (name) REFERENCES Users (email),"+
+                   "PRIMARY KEY (name) )";
+          pstmt=conn2.prepareStatement(sql);
            pstmt.executeUpdate(sql);
            
-           sql="CREATE TABLE Style (name varchar(56), cat varchar(56), FOREIGN KEY name REFERENCES Users(email),"+
-                   "PRIMARY KEY name )";
+           sql="CREATE TABLE Reminders (reminderName varchar(20), message varchar(256), DATE date, TIME time, PRIMARY KEY (reminderName)  "
+                   + ", FOREIGN KEY (reminderName ) REFERENCES Users (email) )";
+           
+           pstmt=conn2.prepareStatement(sql);
            pstmt.executeUpdate(sql);
-           
-           sql="CREATE TABLE Reminders (reminderName varchar(20), message varchar(256), DATE date, TIME time, primary key (reminderName))";
-           
-           pstmt.executeQuery(sql);
-           
+           /*
            sql="CREATE TABLE Xml ( name varchar(56), cat(56) "+" PRIMARY KEY name, FOREIGN KEY name)";
            
-           pstmt.executeUpdate(sql);
+           pstmt.executeUpdate(sql); */
            
-           pstmt.closeOnCompletion();
+           pstmt.close();
            
        } catch (SQLException e) {
            System.out.println("Error creating table: "+e.getMessage());       
        }
-   }
+   } 
 
     
     /*@author eli */     
@@ -182,6 +189,8 @@ public class Db {
       String dbEmail=null;
       String dbPos=null;
       List<String> courses=null;
+      
+      
       
       sql="SELECT * FROM Users WHERE email= 'email'";
       

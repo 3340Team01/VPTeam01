@@ -14,7 +14,7 @@ import javafx.scene.image.Image;
  */
 public class User 
 {
-
+    
     String last;
     String email;
     String pass;
@@ -24,58 +24,90 @@ public class User
     String pos;
     List courses;
     List reminders;
-    
     Image pic;
+    int permission;
     
-    
-    
-    public User(String Lastname, String firstname, String password, String email ) 
-    {
-       
-         Util u=new Util();
-         
-        this.last = Lastname;
-        this.email = email;
-        this.pass = password;
-        this.first = firstname;
-    }
-    
-    public void getUser(/*email*/)
-    {   
-        
-        /*to be used by the program to create a obejct containing user info expect for password*/
-    }
-    
-    public String getFirstname() {
-        return first;
-    }
-
-    public void setFirstname(String firstname) {
-        this.first = firstname;
-    }
-
-    public String getLastname() {
-        return last ;
-    }
-
-    public void setLastname(String Lastname) {
-        this.last = Lastname;
+    public String getLast() {
+        return last;
     }
 
     public String getEmail() {
         return email;
     }
 
+    public String getPass() {
+        return pass;
+    }
+
+    public String getFirst() {
+        return first;
+    }
+
+    public String getHash() {
+        return hash;
+    }
+
+    public String getSalt() {
+        return salt;
+    }
+
+    public String getPos() {
+        return pos;
+    }
+
+    public List getCourses() {
+        return courses;
+    }
+
+    public List getReminders() {
+        return reminders;
+    }
+
+    public Image getPic() {
+        return pic;
+    }
+
+
+    
+
+    public void setLast(String last) {
+        this.last = last;
+    }
+
     public void setEmail(String email) {
         this.email = email;
     }
 
-    public String getPassword() {
-        return pass;
+    public void setPass(String pass) {
+        this.pass = pass;
     }
 
-    public void setPassword(String Password) {
-        this.pass = Password;
+    public void setFirst(String first) {
+        this.first = first;
     }
-    
+
+    public void setHash(String hash) {
+        this.hash = hash;
+    }
+
+    public void setSalt(String salt) {
+        this.salt = salt;
+    }
+
+    public void setPos(String pos) {
+        this.pos = pos;
+    }
+
+    public void setCourses(List courses) {
+        this.courses = courses;
+    }
+
+    public void setReminders(List reminders) {
+        this.reminders = reminders;
+    }
+
+    public void setPic(Image pic) {
+        this.pic = pic;
+    }
+ 
 }
