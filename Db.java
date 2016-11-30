@@ -13,6 +13,7 @@ import java.sql.Statement;
 import java.sql.ResultSet;
 //import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
+import java.util.List;
 
 
  /*
@@ -132,40 +133,37 @@ public class Db {
    
    }
    
-      private void dbInitTables()
+   /* @author eli */ 
+   private void dbInitTables()
    {
        try 
        {
            
-           //Creates an object of statement
-            String DB_URL = "jdbc:mysql://localhost/"+DBname;
-           conn = DriverManager.getConnection(DB_URL, USER, PASS);
-           Statement con = conn.createStatement();
            String sql=null;
            
            sql = "CREATE TABLE Users (email varchar(20), first varchar(10), last varchar(15),"
-                   + "password varchar(20), pic varbinary(MAX), PRIMARY KEY (email))";
+                   + "password varchar(20), salt varchar(256), pos varchar(56), permission BIT  pic varbinary(MAX), PRIMARY KEY (email))";
          
-           con.executeUpdate(sql);
+           pstmt.executeUpdate(sql);
            
-           sql="CREATE TABLE Courses (prefix varchar(4), number int(4), name varchar(30)"
+           sql="CREATE TABLE Courses (prefix varchar(4), number int(4), name varchar(30), xml longtext(MAX)"
                    +",FOREIGN KEY number REFERENCES Users(email) )";
                  
-           con.executeUpdate(sql);
+           pstmt.executeUpdate(sql);
            
            sql="CREATE TABLE Style (name varchar(56), cat varchar(56), FOREIGN KEY name REFERENCES Users(email),"+
                    "PRIMARY KEY name )";
-           con.executeUpdate(sql);
+           pstmt.executeUpdate(sql);
            
            sql="CREATE TABLE Reminders (reminderName varchar(20), message varchar(256), DATE date, TIME time, primary key (reminderName))";
            
-           con.executeQuery(sql);
+           pstmt.executeQuery(sql);
            
            sql="CREATE TABLE Xml ( name varchar(56), cat(56) "+" PRIMARY KEY name, FOREIGN KEY name)";
            
-           con.executeUpdate(sql);
+           pstmt.executeUpdate(sql);
            
-           con.closeOnCompletion();
+           pstmt.closeOnCompletion();
            
        } catch (SQLException e) {
            System.out.println("Error creating table: "+e.getMessage());       
@@ -173,23 +171,33 @@ public class Db {
    }
 
     
-         
-    protected boolean login(String email, String pass)
+    /*@author eli */     
+    protected boolean login(String email, String pass, User u)
     {
       String sql;
       String dbPass=null;
       String dbSalt=null;
-      boolean success=false;
+      String dbFirst=null;
+      String dbLast=null;
+      String dbEmail=null;
+      String dbPos=null;
+      List<String> courses=null;
+      
       sql="SELECT * FROM Users WHERE email= 'email'";
       
       try
       {    
-          rs=stmt.executeQuery(sql);
+          rs=pstmt.executeQuery(sql);
           
          if(rs!=null)
          {
              dbPass=rs.getString("password");
              dbSalt=rs.getString("salt");
+             dbFirst=rs.getString("first");
+             dbLast=rs.getString("last");
+             dbEmail=rs.getString("email");
+             dbPos=rs.getString("pos");
+             
          }
          else
              return false;
@@ -203,6 +211,11 @@ public class Db {
       }
       if((pass).equals(dbPass))
          {
+             u.setFirst(dbFirst);
+             u.setLast(dbLast);
+             u.setEmail(dbEmail);
+             u.setPos(dbPos);
+             //u.setCourses();
             return true;
          }
          else
@@ -210,18 +223,30 @@ public class Db {
     }
 
     /* @author Eli */
-    public boolean register(String firstname, String lastname, String email, String password) 
+    public boolean register(User u) 
     {
-        boolean success=false;
-        try {
-            //Class.forName(JDBC_DRIVER); // Load the driver
-            conn = DriverManager.getConnection(DB_URL + DBname, USER, PASS);
-            Statement stmt = conn.createStatement();
-            String sql = "INSERT INTO Users VALUES (" + email + "," + firstname + "," + lastname + "," + "," + password + ")";
-            stmt.executeUpdate(sql);
-            System.out.println("Inserted records into the table Users");
+        int count=0;
+        
+        String sql;
+        String uEmail=u.getEmail();
+        
+        try 
+        {
+            sql="SELECT email FROM Users WHERE email="+u.getEmail()+"";
             
-            success=true;
+            rs=pstmt.executeQuery(sql);
+            
+            if(rs==null)
+            {
+                sql="INSERT INTO Users"
+                        +"(email,first,last,password,salt,pos,pic)"
+                        +"VALUES ("+u.getEmail()+","+u.getFirst()
+                        +","+u.getLast()+","+u.getPass()+","+u.getSalt()+","+u.getPos()+","+u.getPic()+")";
+                
+                count=pstmt.executeUpdate(sql);
+                
+            }
+
         } 
         catch (SQLException e) 
         {
@@ -232,12 +257,11 @@ public class Db {
         /*catch (ClassNotFoundException e) {
             System.out.println("Please ensure you have mysql connector jar linked to the project.");
         }*/
-        if(success)
+        if(count!=0)
         return true;
-        
+     
         else 
         return false;
-    
     }   
 
     public void newXml(/*xml file or appropriate strings like "prefix", "number", "hours". or an object with this info*/) {
