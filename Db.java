@@ -14,13 +14,13 @@ import java.sql.ResultSet;
 //import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.util.List;
-import DB.User;
 
 
  /*
  * @author Eli function protoyping
  */
-public class Db {
+public class Db 
+{
     
     private static Db databaseSingleton = new Db();
     
@@ -31,7 +31,7 @@ public class Db {
     //  Database credentials
     protected static final String USER = "root";
     protected static final String PASS = "teamblack";
-    protected static final String DBname = "vaqpack";
+    protected static final String DB_NAME = "vaqpack";
 
     //Fields required for queries
     private Connection conn;
@@ -51,7 +51,7 @@ public class Db {
        {
            Class.forName(JDBC_DRIVER); // Load the driver
            dbCheck(DriverManager.getConnection(DB_URL,USER,PASS)); // Check to see if the database exists
-           conn = DriverManager.getConnection(DB_URL + DBname,USER,PASS); // Connection that connects to our database.
+           conn = DriverManager.getConnection(DB_URL + DB_NAME,USER,PASS); // Connection that connects to our database.
        }
        catch (SQLException e) 
        {
@@ -64,6 +64,7 @@ public class Db {
            System.out.println("Please ensure you have mysql connector jar linked to the project.");
        }
    }
+   
    /**
     * @author Juan Delgado
     * returns the database object. Which is a singleton.
@@ -73,6 +74,7 @@ public class Db {
    {
        return databaseSingleton;
    }
+   
    /**
     * @author Juan Delgado
     * This function will check if the database exist. If not it will call another
@@ -95,7 +97,7 @@ public class Db {
            rs.beforeFirst(); //Moves the cursor to the front of this ResultSet object, just before the first row to prepare for iteration.
            while(rs.next()) 
            {
-               if(rs.getString(1).equalsIgnoreCase(DBname))
+               if(rs.getString(1).equalsIgnoreCase(DB_NAME))
 
                {
                    exist = true;
@@ -121,7 +123,7 @@ public class Db {
    {
        try 
        {
-           String sql = "CREATE DATABASE "+DBname;
+           String sql = "CREATE DATABASE "+DB_NAME;
            stmt = connect.createStatement();
            int holder = stmt.executeUpdate(sql);
            dbInitTables();
@@ -142,7 +144,7 @@ public class Db {
            
            
            String sql=null;
-           Connection conn2 = DriverManager.getConnection(DB_URL + DBname,USER,PASS);
+           Connection conn2 = DriverManager.getConnection(DB_URL + DB_NAME,USER,PASS);
            sql = "CREATE TABLE Users ( email varchar(20), first varchar(10), last varchar(15),"
                    + "password varchar(20), salt varchar(256), pos varchar(56), permission BIT,pic BLOB, PRIMARY KEY (email))";
            
@@ -179,7 +181,7 @@ public class Db {
 
     
     /*@author eli */     
-    public boolean login(String email, String pass, User u)
+    public User login(String email, String pass)
     {
       String sql;
       String dbPass=null;
@@ -189,14 +191,18 @@ public class Db {
       String dbEmail=null;
       String dbPos=null;
       List<String> courses=null;
-
-      sql="SELECT * FROM Users WHERE email= 'email'";
       
+      User u = new User();
+
+      sql="SELECT * FROM Users WHERE email= ?";
+
       try
-      {   pstmt=conn.prepareStatement(sql);
+      {   conn = DriverManager.getConnection(DB_URL + DB_NAME,USER,PASS);
+          pstmt=conn.prepareStatement(sql);
+          pstmt.setString(1, email);
           rs=pstmt.executeQuery();
           
-         if(rs!=null)
+         if(rs.first())
          {
              dbPass=rs.getString("password");
              dbSalt=rs.getString("salt");
@@ -204,56 +210,58 @@ public class Db {
              dbLast=rs.getString("last");
              dbEmail=rs.getString("email");
              dbPos=rs.getString("pos");
-             
          }
-         else
-             return false;
-         
-         pass=pass+dbSalt;
-         dbPass+=dbSalt;       
       }
       catch(SQLException e)
       {
       
       }
+     
+      pass=pass+dbSalt;
+      dbPass+=dbSalt;
+      
+      
       if((pass).equals(dbPass))
          {
              u.setFirst(dbFirst);
              u.setLast(dbLast);
-             u.setEmail("ham");
+             u.setEmail(dbEmail);
              u.setPos(dbPos);
              //u.setCourses();
-            return true;
          }
-         else
-             return false;
+      
+      return u;
+        
     }
 
     /* @author Eli */
     public boolean register(User u) 
     {
-        int count=0;
-        
-        String sql;
-        String uEmail=u.getEmail();
-        
+       String sql;
+        int rowCount=0;
         try 
         {
-            sql="SELECT email FROM Users WHERE email="+u.getEmail()+"";
+            sql="SELECT email FROM Users WHERE email = ? ";
+            conn=DriverManager.getConnection(DB_URL+DB_NAME, USER, PASS);
+            pstmt=conn.prepareStatement(sql);
+            pstmt.setString(1, u.getEmail());
+            rs=pstmt.executeQuery();
             
-            rs=pstmt.executeQuery(sql);
-            
-            if(rs==null)
+            if(!rs.first())
             {
-                sql="INSERT INTO Users"
-                        +"(email,first,last,password,salt,pos,pic)"
-                        +"VALUES ("+u.getEmail()+","+u.getFirst()
-                        +","+u.getLast()+","+u.getPass()+","+u.getSalt()+","+u.getPos()+","+u.getPic()+")";
+                sql="INSERT INTO Users (email, first, last, password, salt, pos) VALUES (?,?,?,?,?,?)";
                 
-                count=pstmt.executeUpdate(sql);
+                pstmt=conn.prepareStatement(sql);
+                pstmt.setString(1, u.getEmail());
+                pstmt.setString(2, u.getFirst());
+                pstmt.setString(3, u.getLast());
+                pstmt.setString(4, u.getPass());
+                pstmt.setString(5, u.getSalt());
+                pstmt.setString(6, u.getPos());
                 
+                pstmt.execute();
+                rowCount=pstmt.getUpdateCount();
             }
-
         } 
         catch (SQLException e) 
         {
@@ -261,12 +269,8 @@ public class Db {
             System.out.println("There is an error: " + e.getMessage());
 
         } 
-        /*catch (ClassNotFoundException e) {
-            System.out.println("Please ensure you have mysql connector jar linked to the project.");
-        }*/
-        if(count!=0)
-        return true;
-     
+        if(rowCount==1)
+        return true; 
         else 
         return false;
     }   

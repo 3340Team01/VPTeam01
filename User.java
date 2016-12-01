@@ -15,35 +15,32 @@ import javafx.scene.image.Image;
 public class User 
 {
 
-   
     
-    String last;
+
+   
     String email;
-    String pass;
     String first;
-    String hash;
+    String last;
+    String pass;
     String salt;
     String pos;
+    int permission;
+     Image pic;
     List courses;
     List reminders;
-    Image pic;
-    int permission;
-    
-     public User(String last, String email, String pass, String first, String hash, String salt, String pos, List courses, List reminders, Image pic, int permission) 
-     {
-        this.last = last;
+   
+   public User(String email, String first, String last, String pass, String salt, String pos) 
+   {
         this.email = email;
-        this.pass = pass;
         this.first = first;
-        this.hash = hash;
-        this.salt = salt;
+        this.last = last;
+        this.pass = pass;
         this.pos = pos;
-        this.courses = courses;
-        this.reminders = reminders;
-        this.pic = pic;
-        this.permission = permission;
+        this.salt=salt;
     }
-     
+    
+ 
+    
     public User()
     {
         
@@ -65,9 +62,6 @@ public class User
         return first;
     }
 
-    public String getHash() {
-        return hash;
-    }
 
     public String getSalt() {
         return salt;
@@ -108,9 +102,7 @@ public class User
         this.first = first;
     }
 
-    public void setHash(String hash) {
-        this.hash = hash;
-    }
+  
 
     public void setSalt(String salt) {
         this.salt = salt;
