@@ -6,6 +6,12 @@
 package DB;
 
 //import static Database.DB.JDBC_DRIVER;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -14,6 +20,7 @@ import java.sql.ResultSet;
 //import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.util.List;
+import testcode.DirectoryStructure;
 
 
  /*
@@ -126,6 +133,7 @@ public class Db
            String sql = "CREATE DATABASE "+DB_NAME;
            stmt = connect.createStatement();
            int holder = stmt.executeUpdate(sql);
+           conn = DriverManager.getConnection(DB_URL + DB_NAME,USER,PASS);
            dbInitTables();
            
        }
@@ -274,19 +282,101 @@ public class Db
         else 
         return false;
     }   
-
-    public void newXml(/*xml file or appropriate strings like "prefix", "number", "hours". or an object with this info*/) {
-        /* 
-            Extract info from object, array, xml file or get info from strings passed.
-            try to open connection to db.
-            if success, check table COURSES for the existence of the current xml attempting to be inserted
-            if duplicate return false
-            ELSE    INSERT new ROW INTO TABLE COURSES with info like "prefix", "number", "hours".
-            close connection, return TRUE
-        
-         */
+    
+    /**
+     * @author Juan Delgado
+     * Create a new entry in the courses table with the specified prefix, number,
+     * and name. It will also store the xml files that have been generated. Note that the
+     * xml files must exist already in order for this function to work.
+     * @param prefix
+     * @param courseNumber
+     * @param courseName 
+     */
+    public void newXml(String prefix, String courseNumber, String courseName) {
+        String courseXMLPath = DirectoryStructure.getVACPAC_XML() + prefix + "-" + courseNumber + ".xml";
+        String abetXMLPath = DirectoryStructure.getVACPAC_XML() + prefix + "-" + courseNumber + "-abet.xml";
+        String outcomesXMLPath = DirectoryStructure.getVACPAC_XML() + prefix + "-" + courseNumber + "-outcome.xml";
+        String sql = "INSERT INTO courses(prefix, course_number, name, course_xml, abet_xml, outcomes_xml"
+                + "VALUES(?, ?, ?, ?, ?, ?";
+        try{
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, prefix);
+            pstmt.setString(2, courseNumber);
+            pstmt.setString(3, courseName);
+            pstmt.setBinaryStream(4, new FileInputStream( new File(courseXMLPath)));
+            pstmt.setBinaryStream(5, new FileInputStream( new File(abetXMLPath)));
+            pstmt.setBinaryStream(6, new FileInputStream( new File(outcomesXMLPath)));
+            pstmt.close();
+        }
+        catch(SQLException e){
+            e.printStackTrace();
+        }
+        catch (FileNotFoundException e){
+            e.printStackTrace();
+        }
     }
-
+    /**
+     * @author Juan Delgado
+     * Automatically populates the xml files contained in the database.
+     */
+    public void populateXMLFiles()
+    {
+        String sql = "SELECT * FROM courses";
+        File xmlFile;
+        InputStream is;
+        FileOutputStream fs;
+        byte[] buffer = new byte[1096];
+        try{
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery(sql);
+            while(rs.next()) {
+                //Read the course XML file
+                xmlFile = new File(DirectoryStructure.getVACPAC_XML() + rs.getString(1) + "-" + rs.getString(2) + ".xml");
+                xmlFile.createNewFile(); // Create the file if it does not exist;
+                fs = new FileOutputStream(xmlFile);
+                is = rs.getBinaryStream(4);
+                while(is.read(buffer) > 0){
+                    fs.write(buffer);
+                }
+                fs.close();
+                is.close();
+                
+                //Read the abet XML file
+                xmlFile = new File(DirectoryStructure.getVACPAC_XML() + rs.getString(1) + "-" + rs.getString(2) + "-abet.xml");
+                xmlFile.createNewFile(); // Create the file if it does not exist;
+                fs = new FileOutputStream(xmlFile);
+                is = rs.getBinaryStream(5);
+                while(is.read(buffer) > 0){
+                    fs.write(buffer);
+                }
+                fs.close();
+                is.close();
+                
+                //Read the outcome xml file
+                xmlFile = new File(DirectoryStructure.getVACPAC_XML() + rs.getString(1) + "-" + rs.getString(2) + "-outcomes.xml");
+                xmlFile.createNewFile(); // Create the file if it does not exist;
+                fs = new FileOutputStream(xmlFile);
+                is = rs.getBinaryStream(6);
+                while(is.read(buffer) > 0){
+                    fs.write(buffer);
+                }
+                fs.close();
+                is.close();
+            }
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+        }
+        catch (FileNotFoundException e){
+            e.printStackTrace();
+        }
+        catch (IOException e){
+            e.printStackTrace();
+        }
+    }
+    public void populateCSSFiles(){
+        
+    }
     public void addCourse(String department, String prefix, String number, String name, String description, 
             String creditHours, String lectureHours, String labHours, String level, String scheduleType,
             String prerequiste, String corequisite, String courseAttributes) {

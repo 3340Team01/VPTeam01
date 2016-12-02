@@ -17,6 +17,7 @@ public final class DirectoryStructure {
     private static final String VACPAC_COURSE_CSS = "./VacPac/css/course/";
     private static final String VACPAC_PDF = "./VacPac/pdf/";
     private static final String VACPAC_HTML = "./VacPac/html";
+    private static final String VACPAC_ROOT = "./VacPac/";
     
     /**
      * @author Juan Delgado
@@ -45,6 +46,10 @@ public final class DirectoryStructure {
 
     public static String getVACPAC_HTML() {
         return VACPAC_HTML;
+    }
+
+    public static String getVACPAC_ROOT() {
+        return VACPAC_ROOT;
     }
     /**
      * @author Juan Delgado
