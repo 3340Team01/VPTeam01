@@ -57,14 +57,7 @@ public class Db
        try
        {
            Class.forName(JDBC_DRIVER); // Load the driver
-           dbCheck(DriverManager.getConnection(DB_URL,USER,PASS)); // Check to see if the database exists
-           conn = DriverManager.getConnection(DB_URL + DB_NAME,USER,PASS); // Connection that connects to our database.
-       }
-       catch (SQLException e) 
-       {
-           
-           System.out.println("There is an error HERE: "+e.getMessage());
-           
+           dbCheck(); // Check to see if the database exists
        }
        catch (ClassNotFoundException e)
        {
@@ -88,17 +81,18 @@ public class Db
     * function to create it.
     * @param Connection 
     */
-   private void dbCheck(Connection connectionTest)
-   {
+   private void dbCheck(){
+       Connection connectionTest = null;
        try 
        {
+           connectionTest = DriverManager.getConnection(DB_URL,USER,PASS);
            // Bool variable that will change depending if the database is there. We assume the database does not exist.
            Boolean exist = false;
            rs = connectionTest.getMetaData().getCatalogs();
            if(!rs.first()) //Check if database is empty.
            {
                System.out.println("NO DB!!!!!!!!!!!!!!!!!");
-               dbInit(connectionTest);
+               dbInit();
                return; //Exit the function since we have just created the database.No need for iteration of the rest of the rows.
            }
            rs.beforeFirst(); //Moves the cursor to the front of this ResultSet object, just before the first row to prepare for iteration.
@@ -113,11 +107,14 @@ public class Db
                    
            }
            if(!exist)
-               dbInit(connectionTest);
+               dbInit();
        }
        catch (SQLException e)
        {
            System.out.println("Error could not access the database.");
+       }
+       finally {
+           closeConnection(connectionTest);
        }
    }
    /**
@@ -126,14 +123,13 @@ public class Db
     * @param connect 
     */
    
-   private void dbInit(Connection connect)
-   {
-       try 
-       {
+   private void dbInit(){
+       Connection connect  = null;
+       try {
+           connect = DriverManager.getConnection(DB_URL,USER,PASS);
            String sql = "CREATE DATABASE "+DB_NAME;
            stmt = connect.createStatement();
            int holder = stmt.executeUpdate(sql);
-           conn = DriverManager.getConnection(DB_URL + DB_NAME,USER,PASS);
            dbInitTables();
            
        }
@@ -141,9 +137,39 @@ public class Db
        {
            System.out.println("ERROR Could not access the database");
        }
+       finally {
+           closeConnection(connect);
+       }
    
    }
-   
+   /**
+    * @authore Juan Delgado
+    * Takes a connection object and closes it.
+    * @param cn 
+    */
+   private void closeConnection(Connection cn){
+       try {
+           cn.close();
+           cn = null;
+       }
+       catch (SQLException e) {
+           e.printStackTrace();
+       }
+   }
+   /**
+    * @author Juan Delgado
+    * Closes either a statement or prepared statement.
+    * @param st 
+    */
+   private void closeStatement(Statement st){
+       try {
+           st.close();
+           st = null;
+       }
+       catch (SQLException e){
+           e.printStackTrace();
+       }
+   }
    /* @author eli */ 
   private void dbInitTables()
    {
@@ -152,38 +178,41 @@ public class Db
            
            
            String sql=null;
-           Connection conn2 = DriverManager.getConnection(DB_URL + DB_NAME,USER,PASS);
+           conn = DriverManager.getConnection(DB_URL + DB_NAME,USER,PASS);
            sql = "CREATE TABLE Users ( email varchar(20), first varchar(10), last varchar(15),"
                    + "password varchar(20), salt varchar(256), pos varchar(56), permission BIT,pic BLOB, PRIMARY KEY (email))";
            
-           pstmt=conn2.prepareStatement(sql);
+           pstmt=conn.prepareStatement(sql);
            pstmt.executeUpdate();
            
            sql="CREATE TABLE Courses (prefix varchar(4), courseNumber varchar(4), name varchar(30), xml LONGTEXT"
                    +",FOREIGN KEY (courseNumber) REFERENCES Users (email), PRIMARY KEY (courseNumber) )";
            
-           pstmt=conn2.prepareStatement(sql);
+           pstmt=conn.prepareStatement(sql);
            pstmt.executeUpdate();
            
            sql="CREATE TABLE Style (name varchar(56), category varchar(56), FOREIGN KEY (name) REFERENCES Users (email),"+
                    "PRIMARY KEY (name) )";
-          pstmt=conn2.prepareStatement(sql);
+          pstmt=conn.prepareStatement(sql);
            pstmt.executeUpdate();
            
            sql="CREATE TABLE Reminders (reminderName varchar(20), message varchar(256), DATE date, TIME time, PRIMARY KEY (reminderName)  "
                    + ", FOREIGN KEY (reminderName ) REFERENCES Users (email) )";
            
-           pstmt=conn2.prepareStatement(sql);
+           pstmt=conn.prepareStatement(sql);
            pstmt.executeUpdate();
            /*
            sql="CREATE TABLE Xml ( name varchar(56), cat(56) "+" PRIMARY KEY name, FOREIGN KEY name)";
            
            pstmt.executeUpdate(sql); */
            
-           pstmt.close();
            
        } catch (SQLException e) {
            System.out.println("Error creating table: "+e.getMessage());       
+       }
+       finally {
+           closeConnection(conn);
+           closeStatement(pstmt);
        }
    } 
 
@@ -223,6 +252,10 @@ public class Db
       catch(SQLException e)
       {
       
+      }
+      finally {
+          closeConnection(conn);
+          closeStatement(pstmt);
       }
      
       pass=pass+dbSalt;
@@ -276,7 +309,11 @@ public class Db
 
             System.out.println("There is an error: " + e.getMessage());
 
-        } 
+        }
+        finally {
+            closeConnection(conn);
+            closeStatement(pstmt);
+        }
         if(rowCount==1)
         return true; 
         else 
@@ -299,6 +336,7 @@ public class Db
         String sql = "INSERT INTO courses(prefix, course_number, name, course_xml, abet_xml, outcomes_xml)"
                 + "VALUES(?, ?, ?, ?, ?, ?)";
         try{
+            conn = DriverManager.getConnection(DB_URL + DB_NAME,USER,PASS); //Connect to the database.
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, prefix);
             pstmt.setString(2, courseNumber);
@@ -307,13 +345,16 @@ public class Db
             pstmt.setBinaryStream(5, new FileInputStream( new File(abetXMLPath)));
             pstmt.setBinaryStream(6, new FileInputStream( new File(outcomesXMLPath)));
             pstmt.executeUpdate();
-            pstmt.close();
         }
         catch(SQLException e){
             e.printStackTrace();
         }
         catch (FileNotFoundException e){
             e.printStackTrace();
+        }
+        finally {
+            closeConnection(conn);
+            closeStatement(pstmt);
         }
     }
     /**
@@ -328,6 +369,7 @@ public class Db
         FileOutputStream fs;
         byte[] buffer; //Buffer to write the file.
         try{
+            conn = DriverManager.getConnection(DB_URL + DB_NAME,USER,PASS); //Connect to the database
             stmt = conn.createStatement();
             rs = stmt.executeQuery(sql);
             while(rs.next()) {
@@ -376,6 +418,10 @@ public class Db
         }
         catch (IOException e){
             e.printStackTrace();
+        }
+        finally {
+            closeConnection(conn);
+            closeStatement(stmt);
         }
     }
     /**
