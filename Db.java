@@ -38,7 +38,7 @@ public class Db
     //  Database credentials
     protected static final String USER = "root";
     protected static final String PASS = "teamblack";
-    protected static final String DB_NAME = "vaqpack";
+    protected static final String DB_NAME = "Vaqpack";
 
     //Fields required for queries
     private Connection conn;
@@ -333,7 +333,7 @@ public class Db
         String courseXMLPath = DirectoryStructure.getVACPAC_XML() + prefix + "-" + courseNumber + ".xml";
         String abetXMLPath = DirectoryStructure.getVACPAC_XML() + prefix + "-" + courseNumber + "-abet.xml";
         String outcomesXMLPath = DirectoryStructure.getVACPAC_XML() + prefix + "-" + courseNumber + "-outcomes.xml";
-        String sql = "INSERT INTO courses(prefix, course_number, name, course_xml, abet_xml, outcomes_xml)"
+        String sql = "INSERT INTO Courses(prefix, course_number, name, course_xml, abet_xml, outcomes_xml)"
                 + "VALUES(?, ?, ?, ?, ?, ?)";
         try{
             conn = DriverManager.getConnection(DB_URL + DB_NAME,USER,PASS); //Connect to the database.
@@ -363,7 +363,7 @@ public class Db
      */
     public void populateXMLFiles()
     {
-        String sql = "SELECT * FROM courses";
+        String sql = "SELECT * FROM Courses";
         File xmlFile;
         InputStream is;
         FileOutputStream fs;
@@ -429,7 +429,7 @@ public class Db
      * Function to retrieve the css files from the database.
      */
     public void populateCSSFiles(){
-        String sql = "SELECT * FROM styles";
+        String sql = "SELECT * FROM Style";
         File xmlFile;
         InputStream is;
         FileOutputStream fs;
