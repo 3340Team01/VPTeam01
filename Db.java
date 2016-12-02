@@ -36,7 +36,9 @@ public class Db
 
     //  Database credentials
     protected static final String USER = "root";
+
     protected static final String PASS = "root";
+
     protected static final String DB_NAME = "Vaqpack";
 
     //Fields required for queries
@@ -56,14 +58,7 @@ public class Db
        try
        {
            Class.forName(JDBC_DRIVER); // Load the driver
-           dbCheck(DriverManager.getConnection(DB_URL,USER,PASS)); // Check to see if the database exists
-           conn = DriverManager.getConnection(DB_URL + DB_NAME,USER,PASS); // Connection that connects to our database.
-       }
-       catch (SQLException e) 
-       {
-           
-           System.out.println("There is an error HERE: "+e.getMessage());
-           
+           dbCheck(); // Check to see if the database exists
        }
        catch (ClassNotFoundException e)
        {
@@ -87,17 +82,18 @@ public class Db
     * function to create it.
     * @param Connection 
     */
-   private void dbCheck(Connection connectionTest)
-   {
+   private void dbCheck(){
+       Connection connectionTest = null;
        try 
        {
+           connectionTest = DriverManager.getConnection(DB_URL,USER,PASS);
            // Bool variable that will change depending if the database is there. We assume the database does not exist.
            Boolean exist = false;
            rs = connectionTest.getMetaData().getCatalogs();
            if(!rs.first()) //Check if database is empty.
            {
                System.out.println("NO DB!!!!!!!!!!!!!!!!!");
-               dbInit(connectionTest);
+               dbInit();
                return; //Exit the function since we have just created the database.No need for iteration of the rest of the rows.
            }
            rs.beforeFirst(); //Moves the cursor to the front of this ResultSet object, just before the first row to prepare for iteration.
@@ -112,11 +108,14 @@ public class Db
                    
            }
            if(!exist)
-               dbInit(connectionTest);
+               dbInit();
        }
        catch (SQLException e)
        {
            System.out.println("Error could not access the database.");
+       }
+       finally {
+           closeConnection(connectionTest);
        }
    }
    /**
@@ -125,14 +124,13 @@ public class Db
     * @param connect 
     */
    
-   private void dbInit(Connection connect)
-   {
-       try 
-       {
+   private void dbInit(){
+       Connection connect  = null;
+       try {
+           connect = DriverManager.getConnection(DB_URL,USER,PASS);
            String sql = "CREATE DATABASE "+DB_NAME;
            stmt = connect.createStatement();
            int holder = stmt.executeUpdate(sql);
-           conn = DriverManager.getConnection(DB_URL + DB_NAME,USER,PASS);
            dbInitTables();
            
        }
@@ -140,18 +138,48 @@ public class Db
        {
            System.out.println("ERROR Could not access the database");
        }
+       finally {
+           closeConnection(connect);
+       }
    
    }
-   
+   /**
+    * @authore Juan Delgado
+    * Takes a connection object and closes it.
+    * @param cn 
+    */
+   private void closeConnection(Connection cn){
+       try {
+           cn.close();
+           cn = null;
+       }
+       catch (SQLException e) {
+           e.printStackTrace();
+       }
+   }
+   /**
+    * @author Juan Delgado
+    * Closes either a statement or prepared statement.
+    * @param st 
+    */
+   private void closeStatement(Statement st){
+       try {
+           st.close();
+           st = null;
+       }
+       catch (SQLException e){
+           e.printStackTrace();
+       }
+   }
    /* @author eli */ 
  private void dbInitTables()
    {
        try 
        {
            
-           
            String sql=null;
-           Connection conn = DriverManager.getConnection(DB_URL + DB_NAME,USER,PASS);
+
+           conn = DriverManager.getConnection(DB_URL + DB_NAME,USER,PASS);
            sql = "CREATE TABLE Users ( id int NOT NULL AUTO_INCREMENT, email varchar(20), first varchar(10), last varchar(15),"
                    + "password varchar(20), salt varchar(256), pos varchar(56), permission int(1), pic LONGBLOB, PRIMARY KEY (id))";
            
@@ -176,8 +204,10 @@ public class Db
            pstmt=conn.prepareStatement(sql);
            pstmt.executeUpdate();
            
+
            sql="CREATE TABLE User_Courses( user_id int, course_prefix varchar(4), course_number varchar(4), course_name varchar(255), grade varchar(1), active int(2), hours FLOAT"
                    + ", FOREIGN KEY (user_id) REFERENCES Users(id))";
+
            pstmt=conn.prepareStatement(sql);
            pstmt.executeUpdate();
            /*
@@ -185,10 +215,13 @@ public class Db
            
            pstmt.executeUpdate(sql); */
            
-           pstmt.close();
            
        } catch (SQLException e) {
            System.out.println("Error creating table: "+e.getMessage());       
+       }
+       finally {
+           closeConnection(conn);
+           closeStatement(pstmt);
        }
    } 
 
@@ -229,8 +262,12 @@ public class Db
       {
       
       }
-      System.out.println(dbFirst);
-      System.out.println(dbSalt+"<--this is SALT");
+
+      finally {
+          closeConnection(conn);
+          closeStatement(pstmt);
+      }
+     
       pass=pass+dbSalt;
       dbPass+=dbSalt;
       System.out.println(pass+"<--this is USER+SALT");
@@ -283,7 +320,11 @@ public class Db
 
             System.out.println("There is an error: " + e.getMessage());
 
-        } 
+        }
+        finally {
+            closeConnection(conn);
+            closeStatement(pstmt);
+        }
         if(rowCount==1)
         return true; 
         else 
@@ -303,9 +344,10 @@ public class Db
         String courseXMLPath = DirectoryStructure.getVACPAC_XML() + prefix + "-" + courseNumber + ".xml";
         String abetXMLPath = DirectoryStructure.getVACPAC_XML() + prefix + "-" + courseNumber + "-abet.xml";
         String outcomesXMLPath = DirectoryStructure.getVACPAC_XML() + prefix + "-" + courseNumber + "-outcomes.xml";
-        String sql = "INSERT INTO courses(prefix, course_number, name, course_xml, abet_xml, outcomes_xml)"
+        String sql = "INSERT INTO Courses(prefix, course_number, name, course_xml, abet_xml, outcomes_xml)"
                 + "VALUES(?, ?, ?, ?, ?, ?)";
         try{
+            conn = DriverManager.getConnection(DB_URL + DB_NAME,USER,PASS); //Connect to the database.
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, prefix);
             pstmt.setString(2, courseNumber);
@@ -314,13 +356,16 @@ public class Db
             pstmt.setBinaryStream(5, new FileInputStream( new File(abetXMLPath)));
             pstmt.setBinaryStream(6, new FileInputStream( new File(outcomesXMLPath)));
             pstmt.executeUpdate();
-            pstmt.close();
         }
         catch(SQLException e){
             e.printStackTrace();
         }
         catch (FileNotFoundException e){
             e.printStackTrace();
+        }
+        finally {
+            closeConnection(conn);
+            closeStatement(pstmt);
         }
     }
     /**
@@ -329,12 +374,13 @@ public class Db
      */
     public void populateXMLFiles()
     {
-        String sql = "SELECT * FROM courses";
+        String sql = "SELECT * FROM Courses";
         File xmlFile;
         InputStream is;
         FileOutputStream fs;
         byte[] buffer; //Buffer to write the file.
         try{
+            conn = DriverManager.getConnection(DB_URL + DB_NAME,USER,PASS); //Connect to the database
             stmt = conn.createStatement();
             rs = stmt.executeQuery(sql);
             while(rs.next()) {
@@ -384,13 +430,17 @@ public class Db
         catch (IOException e){
             e.printStackTrace();
         }
+        finally {
+            closeConnection(conn);
+            closeStatement(stmt);
+        }
     }
     /**
      * @author Juan Delgado
      * Function to retrieve the css files from the database.
      */
     public void populateCSSFiles(){
-        String sql = "SELECT * FROM styles";
+        String sql = "SELECT * FROM Style";
         File xmlFile;
         InputStream is;
         FileOutputStream fs;
