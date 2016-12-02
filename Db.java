@@ -171,15 +171,15 @@ public class Db
            e.printStackTrace();
        }
    }
-   /* @author eli */ 
+ /* @author eli */ 
  private void dbInitTables()
    {
        try 
        {
            
+           
            String sql=null;
-
-           conn = DriverManager.getConnection(DB_URL + DB_NAME,USER,PASS);
+           Connection conn = DriverManager.getConnection(DB_URL + DB_NAME,USER,PASS);
            sql = "CREATE TABLE Users ( id int NOT NULL AUTO_INCREMENT, email varchar(20), first varchar(10), last varchar(15),"
                    + "password varchar(20), salt varchar(256), pos varchar(56), permission int(1), pic LONGBLOB, PRIMARY KEY (id))";
            
@@ -204,10 +204,8 @@ public class Db
            pstmt=conn.prepareStatement(sql);
            pstmt.executeUpdate();
            
-
            sql="CREATE TABLE User_Courses( user_id int, course_prefix varchar(4), course_number varchar(4), course_name varchar(255), grade varchar(1), active int(2), hours FLOAT"
                    + ", FOREIGN KEY (user_id) REFERENCES Users(id))";
-
            pstmt=conn.prepareStatement(sql);
            pstmt.executeUpdate();
            /*
@@ -215,13 +213,10 @@ public class Db
            
            pstmt.executeUpdate(sql); */
            
+           pstmt.close();
            
        } catch (SQLException e) {
            System.out.println("Error creating table: "+e.getMessage());       
-       }
-       finally {
-           closeConnection(conn);
-           closeStatement(pstmt);
        }
    } 
 
@@ -262,12 +257,8 @@ public class Db
       {
       
       }
-
-      finally {
-          closeConnection(conn);
-          closeStatement(pstmt);
-      }
-     
+      System.out.println(dbFirst);
+      System.out.println(dbSalt+"<--this is SALT");
       pass=pass+dbSalt;
       dbPass+=dbSalt;
       System.out.println(pass+"<--this is USER+SALT");
@@ -320,11 +311,7 @@ public class Db
 
             System.out.println("There is an error: " + e.getMessage());
 
-        }
-        finally {
-            closeConnection(conn);
-            closeStatement(pstmt);
-        }
+        } 
         if(rowCount==1)
         return true; 
         else 
