@@ -295,9 +295,9 @@ public class Db
     public void newXml(String prefix, String courseNumber, String courseName) {
         String courseXMLPath = DirectoryStructure.getVACPAC_XML() + prefix + "-" + courseNumber + ".xml";
         String abetXMLPath = DirectoryStructure.getVACPAC_XML() + prefix + "-" + courseNumber + "-abet.xml";
-        String outcomesXMLPath = DirectoryStructure.getVACPAC_XML() + prefix + "-" + courseNumber + "-outcome.xml";
-        String sql = "INSERT INTO courses(prefix, course_number, name, course_xml, abet_xml, outcomes_xml"
-                + "VALUES(?, ?, ?, ?, ?, ?";
+        String outcomesXMLPath = DirectoryStructure.getVACPAC_XML() + prefix + "-" + courseNumber + "-outcomes.xml";
+        String sql = "INSERT INTO courses(prefix, course_number, name, course_xml, abet_xml, outcomes_xml)"
+                + "VALUES(?, ?, ?, ?, ?, ?)";
         try{
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, prefix);
@@ -306,6 +306,7 @@ public class Db
             pstmt.setBinaryStream(4, new FileInputStream( new File(courseXMLPath)));
             pstmt.setBinaryStream(5, new FileInputStream( new File(abetXMLPath)));
             pstmt.setBinaryStream(6, new FileInputStream( new File(outcomesXMLPath)));
+            pstmt.executeUpdate();
             pstmt.close();
         }
         catch(SQLException e){
@@ -325,7 +326,7 @@ public class Db
         File xmlFile;
         InputStream is;
         FileOutputStream fs;
-        byte[] buffer = new byte[1096];
+        byte[] buffer; //Buffer to write the file.
         try{
             stmt = conn.createStatement();
             rs = stmt.executeQuery(sql);
@@ -335,6 +336,7 @@ public class Db
                 xmlFile.createNewFile(); // Create the file if it does not exist;
                 fs = new FileOutputStream(xmlFile);
                 is = rs.getBinaryStream(4);
+                buffer = rs.getBytes(4); //Get size of the file in bytes
                 while(is.read(buffer) > 0){
                     fs.write(buffer);
                 }
@@ -346,6 +348,7 @@ public class Db
                 xmlFile.createNewFile(); // Create the file if it does not exist;
                 fs = new FileOutputStream(xmlFile);
                 is = rs.getBinaryStream(5);
+                buffer = rs.getBytes(5); //Get size of the file in bytes
                 while(is.read(buffer) > 0){
                     fs.write(buffer);
                 }
@@ -357,6 +360,7 @@ public class Db
                 xmlFile.createNewFile(); // Create the file if it does not exist;
                 fs = new FileOutputStream(xmlFile);
                 is = rs.getBinaryStream(6);
+                buffer = rs.getBytes(6); //Get size of the file in bytes
                 while(is.read(buffer) > 0){
                     fs.write(buffer);
                 }
@@ -374,8 +378,16 @@ public class Db
             e.printStackTrace();
         }
     }
+    /**
+     * @author Juan Delgado
+     * Function to retrieve the css files from the database.
+     */
     public void populateCSSFiles(){
-        
+        String sql = "SELECT * FROM styles";
+        File xmlFile;
+        InputStream is;
+        FileOutputStream fs;
+        byte[] buffer = new byte[1096];
     }
     public void addCourse(String department, String prefix, String number, String name, String description, 
             String creditHours, String lectureHours, String labHours, String level, String scheduleType,
