@@ -20,6 +20,8 @@ import java.sql.ResultSet;
 //import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
  /*
@@ -37,7 +39,7 @@ public class Db
     //  Database credentials
     protected static final String USER = "root";
 
-    protected static final String PASS = "root";
+    protected static final String PASS = "teamblack";
 
     protected static final String DB_NAME = "Vaqpack";
 
@@ -179,8 +181,8 @@ public class Db
            
            String sql=null;
            Connection conn = DriverManager.getConnection(DB_URL + DB_NAME,USER,PASS);
-           sql = "CREATE TABLE Users ( id int NOT NULL AUTO_INCREMENT, email VARCHAR(MAX), first varchar(255), last varchar(255),"
-                   + "password VARCHAR(MAX), salt VARCHAR(MAX), pos varchar(255), permission int(1), pic LONGBLOB, PRIMARY KEY (id))";
+           sql = "CREATE TABLE Users ( id int NOT NULL AUTO_INCREMENT, email VARCHAR(255), first varchar(255), last varchar(255),"
+                   + "password nvarchar(255), salt nvarchar(255), pos varchar(255), permission int(1), pic LONGBLOB, PRIMARY KEY (id))";
            
            pstmt=conn.prepareStatement(sql);
            pstmt.executeUpdate();
@@ -221,7 +223,7 @@ public class Db
 
     
     /*@author eli */     
-    public User login(String email, String pass)
+    public User login(User u)
     {
       String sql;
       String dbPass=null;
@@ -232,14 +234,15 @@ public class Db
       String dbPos=null;
       List<String> courses=null;
       
-      User u = new User();
+      Util util=new Util();
+      String [] hashpass=new String[2];
 
       sql="SELECT * FROM Users WHERE email= ?";
 
       try
       {   conn = DriverManager.getConnection(DB_URL + DB_NAME,USER,PASS);
           pstmt=conn.prepareStatement(sql);
-          pstmt.setString(1, email);
+          pstmt.setString(1, u.getEmail());
           rs=pstmt.executeQuery();
           
          if(rs.first())
@@ -251,36 +254,43 @@ public class Db
              dbEmail=rs.getString("email");
              dbPos=rs.getString("pos");
          }
+         else
+             return u;
       }
       catch(SQLException e)
       {
       
       }
-      System.out.println(dbFirst);
-      System.out.println(dbSalt+"<--this is SALT");
-      pass=pass+dbSalt;
-      dbPass+=dbSalt;
-      System.out.println(pass+"<--this is USER+SALT");
-      System.out.println(dbPass+"<--this is DBPASSWORD+salt");
       
-      if((pass).equals(dbPass))
-         {
-             u.setFirst(dbFirst);
-             u.setLast(dbLast);
-             u.setEmail(dbEmail);
-             u.setPos(dbPos);
-             //u.setCourses();
-         }
+        try 
+        {
+            hashpass=util.encrypt(u.getPass(), dbSalt);
+            if((hashpass[0].equals(dbPass)))
+            {
+                u.setEmail(dbEmail);
+                u.setFirst(dbFirst);
+                u.setLast(dbLast);
+                u.setPos(dbPos);
+            }
+            
+        } 
+        catch (Exception ex) 
+        {
+            Logger.getLogger(Db.class.getName()).log(Level.SEVERE, null, ex);
+        }
       
-      return u;
-        
+        return u;
+
     }
 
     /* @author Eli */
     public boolean register(User u) 
     {
-       String sql;
+        String sql;
         int rowCount=0;
+        Util util=new Util();
+        String[] passhash=new String[2];
+        
         try 
         {
             sql="SELECT email FROM Users WHERE email = ? ";
@@ -293,13 +303,11 @@ public class Db
             {
                 sql="INSERT INTO Users (email, first, last, password, salt, pos) VALUES (?,?,?,?,?,?)";
                 
-                Util util=new Util();
                 
-                String[] passhash=new String[2];
                 try {
                     passhash=util.encrypt(u.getPass(), u.getSalt());
                     System.out.println("passwordlogin__>"+passhash[0]+"  salt__"+passhash[1]);
-                    System.out.println(passhash[0].length());
+                   
                 } catch (Exception ex) {
                     Logger.getLogger(Db.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -308,8 +316,8 @@ public class Db
                 pstmt.setString(1, u.getEmail());
                 pstmt.setString(2, u.getFirst());
                 pstmt.setString(3, u.getLast());
-                pstmt.setString(4, u.getPass());
-                pstmt.setString(5, u.getSalt());
+                pstmt.setString(4, passhash[0]);
+                pstmt.setString(5, passhash[1]);
                 pstmt.setString(6, u.getPos());
                 
                 pstmt.execute();

@@ -4,8 +4,8 @@
  * and open the template in the editor.
  */
 package DB;
-
 import java.io.UnsupportedEncodingException;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.logging.Level;
@@ -13,10 +13,11 @@ import java.util.logging.Logger;
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
 /**
  *
- * @author E
+ * @author Eli
  */
 public class Util 
 {
@@ -24,46 +25,50 @@ public class Util
     *
     * @author Michelle
     */
-    
-    
-    public String []  encrypt(String pass, String salty) throws Exception
+
+    public String []  encrypt(String pass, String dbKey) throws Exception
     {   
         String passSalt[] = new String[2]; 
-        String salt=salty;
+        String key=null;
+        SecretKey sk;
         
-        System.out.println("this is original pass"+pass);
-        if(salt == null)
+        if(dbKey == null)
         {
-            // Call genSalt()
-            salt =this.genSalt();
-            System.out.println("this is salt alone-->:  "+salt);
+           sk = generateKey();
+          key = Base64.getEncoder().encodeToString(sk.getEncoded());
+          System.out.println("this is key-->>>>"+key);
+        }
+        else
+        {
+            byte[] decodedKey = Base64.getDecoder().decode(dbKey);
+            sk = new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES");
+            key=dbKey;
         }
         
-        
-            // Apply the passed salt to the passed password, then encrypt
-            KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
-            keyGenerator.init(128);
-            SecretKey key = keyGenerator.generateKey();
             Cipher cipher = Cipher.getInstance("AES");
-            String saltedString = pass + salt;
-                System.out.println("this is pass and salt---->> "+saltedString);
+ 
             // Encryption
-            byte[] plainTextByte = saltedString.getBytes();
-            cipher.init(Cipher.ENCRYPT_MODE, key);
+            byte[] plainTextByte = pass.getBytes();
+            cipher.init(Cipher.ENCRYPT_MODE, sk);
             byte[] encryptedByte = cipher.doFinal(plainTextByte);
             Base64.Encoder encoder = Base64.getEncoder();
             String passEncrypt = encoder.encodeToString(encryptedByte);
             System.out.println("this is encrypted passandsalt---->"+passEncrypt);
             // String array with encrypted password and salt
             passSalt[0]=passEncrypt;
-            passSalt[1]=salt;
-            
-        
-    
+            passSalt[1]=key;
+
         return passSalt;
     }
     
-    String genSalt()
+    private static SecretKey generateKey() throws NoSuchAlgorithmException
+    {
+        KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
+        keyGenerator.init(128); // 128 default; 192 and 256 also possible
+        return keyGenerator.generateKey();
+    }
+    
+    /*String genSalt()
     {
         SecureRandom random = new SecureRandom();
         String salt=null;
@@ -82,5 +87,5 @@ public class Util
             
         }
         return salt;
-    }
+    }*/
 }
