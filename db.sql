@@ -21,10 +21,10 @@ USE `vaqpack`;
 -- Table structure for table `users`
 --
 
-DROP TABLE IF EXISTS `users`;
+DROP TABLE IF EXISTS `Users`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `users` (
+CREATE TABLE `Users` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `email` varchar(50) DEFAULT NULL,
   `first` varchar(10) DEFAULT NULL,
@@ -42,7 +42,7 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-LOCK TABLES `users` WRITE;
+LOCK TABLES `Users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -62,10 +62,10 @@ UNLOCK TABLES;
 -- Table structure for table `courses`
 --
 
-DROP TABLE IF EXISTS `courses`;
+DROP TABLE IF EXISTS `Courses`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `courses` (
+CREATE TABLE `Courses` (
   `prefix` varchar(4) DEFAULT NULL,
   `course_number` varchar(4) NOT NULL,
   `name` varchar(30) DEFAULT NULL,
@@ -80,7 +80,7 @@ CREATE TABLE `courses` (
 -- Dumping data for table `courses`
 --
 
-LOCK TABLES `courses` WRITE;
+LOCK TABLES `Courses` WRITE;
 /*!40000 ALTER TABLE `courses` DISABLE KEYS */;
 /*!40000 ALTER TABLE `courses` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -89,10 +89,10 @@ UNLOCK TABLES;
 -- Table structure for table `reminders`
 --
 
-DROP TABLE IF EXISTS `reminders`;
+DROP TABLE IF EXISTS `Reminders`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `reminders` (
+CREATE TABLE `Reminders` (
   `reminder_id` int(11) DEFAULT NULL,
   `reminderName` varchar(20) NOT NULL,
   `message` varchar(256) DEFAULT NULL,
@@ -108,7 +108,7 @@ CREATE TABLE `reminders` (
 -- Dumping data for table `reminders`
 --
 
-LOCK TABLES `reminders` WRITE;
+LOCK TABLES `Reminders` WRITE;
 /*!40000 ALTER TABLE `reminders` DISABLE KEYS */;
 /*!40000 ALTER TABLE `reminders` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -117,10 +117,10 @@ UNLOCK TABLES;
 -- Table structure for table `style`
 --
 
-DROP TABLE IF EXISTS `style`;
+DROP TABLE IF EXISTS `Style`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `style` (
+CREATE TABLE `Style` (
   `name` varchar(56) NOT NULL,
   `category` varchar(56) DEFAULT NULL,
   PRIMARY KEY (`name`)
@@ -131,7 +131,7 @@ CREATE TABLE `style` (
 -- Dumping data for table `style`
 --
 
-LOCK TABLES `style` WRITE;
+LOCK TABLES `Style` WRITE;
 /*!40000 ALTER TABLE `style` DISABLE KEYS */;
 /*!40000 ALTER TABLE `style` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -140,10 +140,10 @@ UNLOCK TABLES;
 -- Table structure for table `user_courses`
 --
 
-DROP TABLE IF EXISTS `user_courses`;
+DROP TABLE IF EXISTS `User_courses`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `user_courses` (
+CREATE TABLE `User_courses` (
   `user_id` int(11) DEFAULT NULL,
   `course_prefix` varchar(4) DEFAULT NULL,
   `course_number` varchar(4) DEFAULT NULL,
@@ -160,7 +160,7 @@ CREATE TABLE `user_courses` (
 -- Dumping data for table `user_courses`
 --
 
-LOCK TABLES `user_courses` WRITE;
+LOCK TABLES `User_courses` WRITE;
 /*!40000 ALTER TABLE `user_courses` DISABLE KEYS */;
 /*!40000 ALTER TABLE `user_courses` ENABLE KEYS */;
 UNLOCK TABLES;
