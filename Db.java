@@ -6,6 +6,12 @@
 package DB;
 
 //import static Database.DB.JDBC_DRIVER;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -14,6 +20,8 @@ import java.sql.ResultSet;
 //import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
  /*
@@ -30,8 +38,10 @@ public class Db
 
     //  Database credentials
     protected static final String USER = "root";
-    protected static final String PASS = "teamblack";
-    protected static final String DB_NAME = "vaqpack";
+
+    protected static final String PASS = "root";
+
+    protected static final String DB_NAME = "Vaqpack";
 
     //Fields required for queries
     private Connection conn;
@@ -50,14 +60,7 @@ public class Db
        try
        {
            Class.forName(JDBC_DRIVER); // Load the driver
-           dbCheck(DriverManager.getConnection(DB_URL,USER,PASS)); // Check to see if the database exists
-           conn = DriverManager.getConnection(DB_URL + DB_NAME,USER,PASS); // Connection that connects to our database.
-       }
-       catch (SQLException e) 
-       {
-           
-           System.out.println("There is an error HERE: "+e.getMessage());
-           
+           dbCheck(); // Check to see if the database exists
        }
        catch (ClassNotFoundException e)
        {
@@ -81,17 +84,18 @@ public class Db
     * function to create it.
     * @param Connection 
     */
-   private void dbCheck(Connection connectionTest)
-   {
+   private void dbCheck(){
+       Connection connectionTest = null;
        try 
        {
+           connectionTest = DriverManager.getConnection(DB_URL,USER,PASS);
            // Bool variable that will change depending if the database is there. We assume the database does not exist.
            Boolean exist = false;
            rs = connectionTest.getMetaData().getCatalogs();
            if(!rs.first()) //Check if database is empty.
            {
-               System.out.println("NO DB!!!!!!!!!!!!!!!!!");
-               dbInit(connectionTest);
+               
+               dbInit();
                return; //Exit the function since we have just created the database.No need for iteration of the rest of the rows.
            }
            rs.beforeFirst(); //Moves the cursor to the front of this ResultSet object, just before the first row to prepare for iteration.
@@ -106,11 +110,14 @@ public class Db
                    
            }
            if(!exist)
-               dbInit(connectionTest);
+               dbInit();
        }
        catch (SQLException e)
        {
            System.out.println("Error could not access the database.");
+       }
+       finally {
+           closeConnection(connectionTest);
        }
    }
    /**
@@ -119,10 +126,10 @@ public class Db
     * @param connect 
     */
    
-   private void dbInit(Connection connect)
-   {
-       try 
-       {
+   private void dbInit(){
+       Connection connect  = null;
+       try {
+           connect = DriverManager.getConnection(DB_URL,USER,PASS);
            String sql = "CREATE DATABASE "+DB_NAME;
            stmt = connect.createStatement();
            int holder = stmt.executeUpdate(sql);
@@ -133,39 +140,75 @@ public class Db
        {
            System.out.println("ERROR Could not access the database");
        }
+       finally {
+           closeConnection(connect);
+       }
    
    }
-   
-   /* @author eli */ 
-  private void dbInitTables()
+   /**
+    * @authore Juan Delgado
+    * Takes a connection object and closes it.
+    * @param cn 
+    */
+   private void closeConnection(Connection cn){
+       try {
+           cn.close();
+           cn = null;
+       }
+       catch (SQLException e) {
+           e.printStackTrace();
+       }
+   }
+   /**
+    * @author Juan Delgado
+    * Closes either a statement or prepared statement.
+    * @param st 
+    */
+   private void closeStatement(Statement st){
+       try {
+           st.close();
+           st = null;
+       }
+       catch (SQLException e){
+           e.printStackTrace();
+       }
+   }
+ /* @author eli */ 
+ private void dbInitTables()
    {
        try 
        {
            
            
            String sql=null;
-           Connection conn2 = DriverManager.getConnection(DB_URL + DB_NAME,USER,PASS);
-           sql = "CREATE TABLE Users ( email varchar(20), first varchar(10), last varchar(15),"
-                   + "password varchar(20), salt varchar(256), pos varchar(56), permission BIT,pic BLOB, PRIMARY KEY (email))";
+           Connection conn = DriverManager.getConnection(DB_URL + DB_NAME,USER,PASS);
+           sql = "CREATE TABLE Users ( id int NOT NULL AUTO_INCREMENT, email VARCHAR(MAX), first varchar(255), last varchar(255),"
+                   + "password VARCHAR(MAX), salt VARCHAR(MAX), pos varchar(255), permission int(1), pic LONGBLOB, PRIMARY KEY (id))";
            
-           pstmt=conn2.prepareStatement(sql);
+           pstmt=conn.prepareStatement(sql);
            pstmt.executeUpdate();
            
-           sql="CREATE TABLE Courses (prefix varchar(4), courseNumber varchar(4), name varchar(30), xml LONGTEXT"
-                   +",FOREIGN KEY (courseNumber) REFERENCES Users (email), PRIMARY KEY (courseNumber) )";
+           sql="CREATE TABLE Courses (prefix varchar(4), courseNumber varchar(4), name varchar(30), course_xml LONGBLOB,"
+                   +" abet_xml LONGBLOB, outcomes_xml LONGBLOB"
+                   +",PRIMARY KEY (courseNumber) )";
            
-           pstmt=conn2.prepareStatement(sql);
+           pstmt=conn.prepareStatement(sql);
            pstmt.executeUpdate();
            
-           sql="CREATE TABLE Style (name varchar(56), category varchar(56), FOREIGN KEY (name) REFERENCES Users (email),"+
+           sql="CREATE TABLE Style (name varchar(56), category varchar(56),"+
                    "PRIMARY KEY (name) )";
-          pstmt=conn2.prepareStatement(sql);
+          pstmt=conn.prepareStatement(sql);
            pstmt.executeUpdate();
            
-           sql="CREATE TABLE Reminders (reminderName varchar(20), message varchar(256), DATE date, TIME time, PRIMARY KEY (reminderName)  "
-                   + ", FOREIGN KEY (reminderName ) REFERENCES Users (email) )";
+           sql="CREATE TABLE Reminders (reminder_id int, reminderName varchar(20), message varchar(256), DATE date, TIME time, PRIMARY KEY (reminderName),  "
+                   + " FOREIGN KEY (reminder_id) REFERENCES Users(id ))";
            
-           pstmt=conn2.prepareStatement(sql);
+           pstmt=conn.prepareStatement(sql);
+           pstmt.executeUpdate();
+           
+           sql="CREATE TABLE User_Courses( user_id int, course_prefix varchar(4), course_number varchar(4), course_name varchar(255), grade varchar(1), active int(2), hours FLOAT"
+                   + ", FOREIGN KEY (user_id) REFERENCES Users(id))";
+           pstmt=conn.prepareStatement(sql);
            pstmt.executeUpdate();
            /*
            sql="CREATE TABLE Xml ( name varchar(56), cat(56) "+" PRIMARY KEY name, FOREIGN KEY name)";
@@ -216,10 +259,12 @@ public class Db
       {
       
       }
-     
+      System.out.println(dbFirst);
+      System.out.println(dbSalt+"<--this is SALT");
       pass=pass+dbSalt;
       dbPass+=dbSalt;
-      
+      System.out.println(pass+"<--this is USER+SALT");
+      System.out.println(dbPass+"<--this is DBPASSWORD+salt");
       
       if((pass).equals(dbPass))
          {
@@ -251,6 +296,17 @@ public class Db
             {
                 sql="INSERT INTO Users (email, first, last, password, salt, pos) VALUES (?,?,?,?,?,?)";
                 
+                Util util=new Util();
+                
+                String[] passhash=new String[2];
+                try {
+                    passhash=util.encrypt(u.getPass(), u.getSalt());
+                    System.out.println("passwordlogin__>"+passhash[0]+"  salt__"+passhash[1]);
+                    System.out.println(passhash[0].length());
+                } catch (Exception ex) {
+                    Logger.getLogger(Db.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                
                 pstmt=conn.prepareStatement(sql);
                 pstmt.setString(1, u.getEmail());
                 pstmt.setString(2, u.getFirst());
@@ -275,18 +331,121 @@ public class Db
         return false;
     }   
 
-    public void newXml(/*xml file or appropriate strings like "prefix", "number", "hours". or an object with this info*/) {
-        /* 
-            Extract info from object, array, xml file or get info from strings passed.
-            try to open connection to db.
-            if success, check table COURSES for the existence of the current xml attempting to be inserted
-            if duplicate return false
-            ELSE    INSERT new ROW INTO TABLE COURSES with info like "prefix", "number", "hours".
-            close connection, return TRUE
-        
-         */
+    /**
+     * @author Juan Delgado
+     * Create a new entry in the courses table with the specified prefix, number,
+     * and name. It will also store the xml files that have been generated. Note that the
+     * xml files must exist already in order for this function to work.
+     * @param prefix
+     * @param courseNumber
+     * @param courseName 
+     */
+    public void newXml(String prefix, String courseNumber, String courseName) {
+        String courseXMLPath = DirectoryStructure.getVACPAC_XML() + prefix + "-" + courseNumber + ".xml";
+        String abetXMLPath = DirectoryStructure.getVACPAC_XML() + prefix + "-" + courseNumber + "-abet.xml";
+        String outcomesXMLPath = DirectoryStructure.getVACPAC_XML() + prefix + "-" + courseNumber + "-outcomes.xml";
+        String sql = "INSERT INTO Courses(prefix, course_number, name, course_xml, abet_xml, outcomes_xml)"
+                + "VALUES(?, ?, ?, ?, ?, ?)";
+        try{
+            conn = DriverManager.getConnection(DB_URL + DB_NAME,USER,PASS); //Connect to the database.
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, prefix);
+            pstmt.setString(2, courseNumber);
+            pstmt.setString(3, courseName);
+            pstmt.setBinaryStream(4, new FileInputStream( new File(courseXMLPath)));
+            pstmt.setBinaryStream(5, new FileInputStream( new File(abetXMLPath)));
+            pstmt.setBinaryStream(6, new FileInputStream( new File(outcomesXMLPath)));
+            pstmt.executeUpdate();
+        }
+        catch(SQLException e){
+            e.printStackTrace();
+        }
+        catch (FileNotFoundException e){
+            e.printStackTrace();
+        }
+        finally {
+            closeConnection(conn);
+            closeStatement(pstmt);
+        }
     }
-
+    /**
+     * @author Juan Delgado
+     * Automatically populates the xml files contained in the database.
+     */
+    public void populateXMLFiles()
+    {
+        String sql = "SELECT * FROM Courses";
+        File xmlFile;
+        InputStream is;
+        FileOutputStream fs;
+        byte[] buffer; //Buffer to write the file.
+        try{
+            conn = DriverManager.getConnection(DB_URL + DB_NAME,USER,PASS); //Connect to the database
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery(sql);
+            while(rs.next()) {
+                //Read the course XML file
+                xmlFile = new File(DirectoryStructure.getVACPAC_XML() + rs.getString(1) + "-" + rs.getString(2) + ".xml");
+                xmlFile.createNewFile(); // Create the file if it does not exist;
+                fs = new FileOutputStream(xmlFile);
+                is = rs.getBinaryStream(4);
+                buffer = rs.getBytes(4); //Get size of the file in bytes
+                while(is.read(buffer) > 0){
+                    fs.write(buffer);
+                }
+                fs.close();
+                is.close();
+                
+                //Read the abet XML file
+                xmlFile = new File(DirectoryStructure.getVACPAC_XML() + rs.getString(1) + "-" + rs.getString(2) + "-abet.xml");
+                xmlFile.createNewFile(); // Create the file if it does not exist;
+                fs = new FileOutputStream(xmlFile);
+                is = rs.getBinaryStream(5);
+                buffer = rs.getBytes(5); //Get size of the file in bytes
+                while(is.read(buffer) > 0){
+                    fs.write(buffer);
+                }
+                fs.close();
+                is.close();
+                
+                //Read the outcome xml file
+                xmlFile = new File(DirectoryStructure.getVACPAC_XML() + rs.getString(1) + "-" + rs.getString(2) + "-outcomes.xml");
+                xmlFile.createNewFile(); // Create the file if it does not exist;
+                fs = new FileOutputStream(xmlFile);
+                is = rs.getBinaryStream(6);
+                buffer = rs.getBytes(6); //Get size of the file in bytes
+                while(is.read(buffer) > 0){
+                    fs.write(buffer);
+                }
+                fs.close();
+                is.close();
+            }
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+        }
+        catch (FileNotFoundException e){
+            e.printStackTrace();
+        }
+        catch (IOException e){
+            e.printStackTrace();
+        }
+        finally {
+            closeConnection(conn);
+            closeStatement(stmt);
+        }
+    }
+    /**
+     * @author Juan Delgado
+     * Function to retrieve the css files from the database.
+     */
+    public void populateCSSFiles(){
+        String sql = "SELECT * FROM Style";
+        File xmlFile;
+        InputStream is;
+        FileOutputStream fs;
+        byte[] buffer = new byte[1096];
+    }
     public void addCourse(String department, String prefix, String number, String name, String description, 
             String creditHours, String lectureHours, String labHours, String level, String scheduleType,
             String prerequiste, String corequisite, String courseAttributes) {
