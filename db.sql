@@ -72,7 +72,7 @@ CREATE TABLE `Courses` (
   `course_xml` longblob,
   `abet_xml` longblob,
   `outcomes_xml` longblob,
-  PRIMARY KEY (`courseNumber`)
+  PRIMARY KEY (`course_number`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
