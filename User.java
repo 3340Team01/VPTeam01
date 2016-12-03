@@ -4,9 +4,10 @@
  * and open the template in the editor.
  */
 package DB;
-
+import DB.Course;
 import java.util.ArrayList;
 import java.util.List;
+
 import javafx.scene.image.Image;
 /**
  *
@@ -25,8 +26,10 @@ public class User
     String salt;
     String pos;
     int permission;
-     Image pic;
-    List courses;
+    Image pic;
+    List<Course> courseActive;
+    List<Course> courseInactive;
+    
     List reminders;
    
    public User(String email, String first, String last, String pass, String salt, String pos) 
@@ -71,9 +74,6 @@ public class User
         return pos;
     }
 
-    public List getCourses() {
-        return courses;
-    }
 
     public List getReminders() {
         return reminders;
@@ -112,9 +112,6 @@ public class User
         this.pos = pos;
     }
 
-    public void setCourses(List courses) {
-        this.courses = courses;
-    }
 
     public void setReminders(List reminders) {
         this.reminders = reminders;

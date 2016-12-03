@@ -31,33 +31,35 @@ public class Util
         String passSalt[] = new String[2]; 
         String salt=salty;
         
+        System.out.println("this is original pass"+pass);
         if(salt == null)
         {
             // Call genSalt()
             salt =this.genSalt();
+            System.out.println("this is salt alone-->:  "+salt);
         }
-        else
-        {
+        
+        
             // Apply the passed salt to the passed password, then encrypt
             KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
             keyGenerator.init(128);
             SecretKey key = keyGenerator.generateKey();
             Cipher cipher = Cipher.getInstance("AES");
             String saltedString = pass + salt;
-                
+                System.out.println("this is pass and salt---->> "+saltedString);
             // Encryption
             byte[] plainTextByte = saltedString.getBytes();
             cipher.init(Cipher.ENCRYPT_MODE, key);
             byte[] encryptedByte = cipher.doFinal(plainTextByte);
             Base64.Encoder encoder = Base64.getEncoder();
             String passEncrypt = encoder.encodeToString(encryptedByte);
-            
+            System.out.println("this is encrypted passandsalt---->"+passEncrypt);
             // String array with encrypted password and salt
             passSalt[0]=passEncrypt;
             passSalt[1]=salt;
             
         
-    }
+    
         return passSalt;
     }
     
@@ -65,7 +67,7 @@ public class Util
     {
         SecureRandom random = new SecureRandom();
         String salt=null;
-        byte[] saltByte = new byte[32];
+        byte[] saltByte = new byte[8];
         random.nextBytes(saltByte);
       
         try 
