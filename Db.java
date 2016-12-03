@@ -20,7 +20,6 @@ import java.sql.ResultSet;
 //import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.util.List;
-import testcode.DirectoryStructure;
 
 
  /*
@@ -37,7 +36,9 @@ public class Db
 
     //  Database credentials
     protected static final String USER = "root";
-    protected static final String PASS = "teamblack";
+
+    protected static final String PASS = "root";
+
     protected static final String DB_NAME = "Vaqpack";
 
     //Fields required for queries
@@ -170,35 +171,41 @@ public class Db
            e.printStackTrace();
        }
    }
-   /* @author eli */ 
-  private void dbInitTables()
+ /* @author eli */ 
+ private void dbInitTables()
    {
        try 
        {
            
            
            String sql=null;
-           conn = DriverManager.getConnection(DB_URL + DB_NAME,USER,PASS);
-           sql = "CREATE TABLE Users ( email varchar(20), first varchar(10), last varchar(15),"
-                   + "password varchar(20), salt varchar(256), pos varchar(56), permission BIT,pic BLOB, PRIMARY KEY (email))";
+           Connection conn = DriverManager.getConnection(DB_URL + DB_NAME,USER,PASS);
+           sql = "CREATE TABLE Users ( id int NOT NULL AUTO_INCREMENT, email varchar(20), first varchar(10), last varchar(15),"
+                   + "password varchar(20), salt varchar(256), pos varchar(56), permission int(1), pic LONGBLOB, PRIMARY KEY (id))";
            
            pstmt=conn.prepareStatement(sql);
            pstmt.executeUpdate();
            
-           sql="CREATE TABLE Courses (prefix varchar(4), courseNumber varchar(4), name varchar(30), xml LONGTEXT"
-                   +",FOREIGN KEY (courseNumber) REFERENCES Users (email), PRIMARY KEY (courseNumber) )";
+           sql="CREATE TABLE Courses (prefix varchar(4), courseNumber varchar(4), name varchar(30), course_xml LONGBLOB,"
+                   +" abet_xml LONGBLOB, outcomes_xml LONGBLOB"
+                   +",PRIMARY KEY (courseNumber) )";
            
            pstmt=conn.prepareStatement(sql);
            pstmt.executeUpdate();
            
-           sql="CREATE TABLE Style (name varchar(56), category varchar(56), FOREIGN KEY (name) REFERENCES Users (email),"+
+           sql="CREATE TABLE Style (name varchar(56), category varchar(56),"+
                    "PRIMARY KEY (name) )";
           pstmt=conn.prepareStatement(sql);
            pstmt.executeUpdate();
            
-           sql="CREATE TABLE Reminders (reminderName varchar(20), message varchar(256), DATE date, TIME time, PRIMARY KEY (reminderName)  "
-                   + ", FOREIGN KEY (reminderName ) REFERENCES Users (email) )";
+           sql="CREATE TABLE Reminders (reminder_id int, reminderName varchar(20), message varchar(256), DATE date, TIME time, PRIMARY KEY (reminderName),  "
+                   + " FOREIGN KEY (reminder_id) REFERENCES Users(id ))";
            
+           pstmt=conn.prepareStatement(sql);
+           pstmt.executeUpdate();
+           
+           sql="CREATE TABLE User_Courses( user_id int, course_prefix varchar(4), course_number varchar(4), course_name varchar(255), grade varchar(1), active int(2), hours FLOAT"
+                   + ", FOREIGN KEY (user_id) REFERENCES Users(id))";
            pstmt=conn.prepareStatement(sql);
            pstmt.executeUpdate();
            /*
@@ -206,13 +213,10 @@ public class Db
            
            pstmt.executeUpdate(sql); */
            
+           pstmt.close();
            
        } catch (SQLException e) {
            System.out.println("Error creating table: "+e.getMessage());       
-       }
-       finally {
-           closeConnection(conn);
-           closeStatement(pstmt);
        }
    } 
 
@@ -253,14 +257,12 @@ public class Db
       {
       
       }
-      finally {
-          closeConnection(conn);
-          closeStatement(pstmt);
-      }
-     
+      System.out.println(dbFirst);
+      System.out.println(dbSalt+"<--this is SALT");
       pass=pass+dbSalt;
       dbPass+=dbSalt;
-      
+      System.out.println(pass+"<--this is USER+SALT");
+      System.out.println(dbPass+"<--this is DBPASSWORD+salt");
       
       if((pass).equals(dbPass))
          {
@@ -309,17 +311,13 @@ public class Db
 
             System.out.println("There is an error: " + e.getMessage());
 
-        }
-        finally {
-            closeConnection(conn);
-            closeStatement(pstmt);
-        }
+        } 
         if(rowCount==1)
         return true; 
         else 
         return false;
     }   
-    
+
     /**
      * @author Juan Delgado
      * Create a new entry in the courses table with the specified prefix, number,
