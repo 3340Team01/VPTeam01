@@ -435,21 +435,13 @@ public class Db
         FileOutputStream fs;
         byte[] buffer = new byte[1096];
     }
-    public void addCourse(String department, String prefix, String number, String name, String description, 
-            String creditHours, String lectureHours, String labHours, String level, String scheduleType,
-            String prerequiste, String corequisite, String courseAttributes) {
-        /*
-            Open connection to DB
-            SELECT from USER TABLE the ROW which has the CREDENTIAL of the USER passed above.
-            SELECT from the RESULT SET the "courses" column.
-            LOOP through the "coures" for that user and make sure no instance of the NEW course that is attempting to be added.
-            IF no instance, search for the new course attempting to be added within the COURSES table.
-            IF NOT FOUND, return false
-            IF FOUND, create a foreign key/link from the USER in question to the appropriate course ROW in the COURSES TABLE
-            ON success return TRUE
-            close connection, exit
-         */
-
+    /**
+     * @author Juan Delgado will add the specified course to the user_courses tables that corresponds to the user id.
+     * @param user
+     * @param courseToAdd 
+     */
+    public void addCourse(User user, Course courseToAdd) {
+        String sql = "INSERT INTO User_Courses(user_id, course_prefix";
     }
 
     public void edCourse(/*OBJECT containing xml info like PREFIX, COURSE NUMBER, something unique*/) {
