@@ -171,7 +171,6 @@ public class Db
            e.printStackTrace();
        }
    }
- /* @author eli */ 
  private void dbInitTables()
    {
        try 
@@ -180,8 +179,8 @@ public class Db
            
            String sql=null;
            Connection conn = DriverManager.getConnection(DB_URL + DB_NAME,USER,PASS);
-           sql = "CREATE TABLE Users ( id int NOT NULL AUTO_INCREMENT, email varchar(20), first varchar(10), last varchar(15),"
-                   + "password varchar(20), salt varchar(256), pos varchar(56), permission int(1), pic LONGBLOB, PRIMARY KEY (id))";
+           sql = "CREATE TABLE Users ( id int NOT NULL AUTO_INCREMENT, email VARCHAR(MAX), first varchar(255), last varchar(255),"
+                   + "password VARCHAR(MAX), salt VARCHAR(MAX), pos varchar(255), permission int(1), pic LONGBLOB, PRIMARY KEY (id))";
            
            pstmt=conn.prepareStatement(sql);
            pstmt.executeUpdate();
@@ -294,6 +293,17 @@ public class Db
             {
                 sql="INSERT INTO Users (email, first, last, password, salt, pos) VALUES (?,?,?,?,?,?)";
                 
+                Util util=new Util();
+                
+                String[] passhash=new String[2];
+                try {
+                    passhash=util.encrypt(u.getPass(), u.getSalt());
+                    System.out.println("passwordlogin__>"+passhash[0]+"  salt__"+passhash[1]);
+                    System.out.println(passhash[0].length());
+                } catch (Exception ex) {
+                    Logger.getLogger(Db.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                
                 pstmt=conn.prepareStatement(sql);
                 pstmt.setString(1, u.getEmail());
                 pstmt.setString(2, u.getFirst());
@@ -317,6 +327,7 @@ public class Db
         else 
         return false;
     }   
+
 
     /**
      * @author Juan Delgado
