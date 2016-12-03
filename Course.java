@@ -9,6 +9,7 @@ public class Course {
     private String coursePrefix;
     private String courseNumber;
     private String courseName;
+    private int active;
     private char grade;
     private double hours;
     
@@ -16,13 +17,15 @@ public class Course {
         coursePrefix = " ";
         courseNumber = " ";
         courseName = " ";
+        active = 0;
         grade = ' ';
         hours = 0.0;
     }
-    public Course(String coursePrefix, String courseNumber, String courseName, char grade, double hours){
+    public Course(String coursePrefix, String courseNumber, String courseName, int active, char grade, double hours){
         this.coursePrefix = coursePrefix;
         this.courseNumber = courseNumber;
         this.courseName = courseName;
+        this.active = active;
         this.grade = grade;
         this.hours = hours;
     }
@@ -39,6 +42,9 @@ public class Course {
         this.courseName = courseName;
     }
 
+    public void setActive(int active) {
+        this.active = active;
+    }
     public void setGrade(char grade) {
         this.grade = grade;
     }
@@ -59,6 +65,9 @@ public class Course {
         return courseName;
     }
 
+    public int getActive() {
+        return active;
+    }
     public char getGrade() {
         return grade;
     }
