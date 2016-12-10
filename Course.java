@@ -29,7 +29,14 @@ public class Course {
         this.grade = grade;
         this.hours = hours;
     }
-
+    public Course(Course copyCourse){
+        coursePrefix = copyCourse.coursePrefix;
+        courseNumber = copyCourse.courseNumber;
+        courseName = copyCourse.courseName;
+        active = copyCourse.active;
+        grade = copyCourse.grade;
+        hours = copyCourse.hours;
+    }
     public void setCoursePrefix(String coursePrefix) {
         this.coursePrefix = coursePrefix;
     }
