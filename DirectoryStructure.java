@@ -12,10 +12,10 @@ import java.io.IOException;
 public final class DirectoryStructure {
     
     //Directory paths
-    private static final String VACPAC_XML = "./VacPac/xml/";
-    private static final String VACPAC_GUI_CSS = "./VacPac/css/gui/";
-    private static final String VACPAC_COURSE_CSS = "./VacPac/css/course/";
+    private static final String VACPAC_XML = "./VacPac/XML/";
+    private static final String VACPAC_CSS = "./VacPac/STYLES/";
     private static final String VACPAC_PDF = "./VacPac/pdf/";
+    private static final String VACPAC_PDF_EMAIL = "./VacPac/pdf/EmailAttachment/";
     private static final String VACPAC_HTML = "./VacPac/html";
     private static final String VACPAC_ROOT = "./VacPac/";
     
@@ -31,13 +31,8 @@ public final class DirectoryStructure {
     public static String getVACPAC_XML() {
         return VACPAC_XML;
     }
-
-    public static String getVACPAC_GUI_CSS() {
-        return VACPAC_GUI_CSS;
-    }
-
-    public static String getVACPAC_COURSE_CSS() {
-        return VACPAC_COURSE_CSS;
+    public static String getVACPAC_CSS() {
+        return VACPAC_CSS;
     }
 
     public static String getVACPAC_PDF() {
@@ -51,6 +46,11 @@ public final class DirectoryStructure {
     public static String getVACPAC_ROOT() {
         return VACPAC_ROOT;
     }
+
+    public static String getVACPAC_PDF_EMAIL() {
+        return VACPAC_PDF_EMAIL;
+    }
+    
     /**
      * @author Juan Delgado
      * Creates the necessary directories. 
@@ -66,12 +66,11 @@ public final class DirectoryStructure {
         directory = new File(VACPAC_HTML);
         if(!directory.exists())
             directory.mkdirs();
-        directory = new File(VACPAC_GUI_CSS);
+        directory = new File(VACPAC_CSS);
         if(!directory.exists())
             directory.mkdirs();
-        directory = new File(VACPAC_COURSE_CSS);
+        directory = new File(VACPAC_PDF_EMAIL);
         if(!directory.exists())
             directory.mkdirs();
-    }
-    
+    } 
 }

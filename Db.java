@@ -6,12 +6,15 @@
 package DB;
 
 //import static Database.DB.JDBC_DRIVER;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -20,6 +23,10 @@ import java.sql.ResultSet;
 //import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
+<<<<<<< HEAD
+import java.util.ArrayList;
+=======
+>>>>>>> 94e5316ce4566c325b600125155012859e852cf6
 import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -41,9 +48,9 @@ public class Db
     //  Database credentials
     protected static final String USER = "root";
 
-    protected static final String PASS = "root";
+    protected static final String PASS = "Skyl@r5106";
 
-    protected static final String DB_NAME = "Vaqpack";
+    protected static final String DB_NAME = "vaqpack";
 
     //Fields required for queries
     private Connection conn;
@@ -119,7 +126,7 @@ public class Db
            System.out.println("Error could not access the database.");
        }
        finally {
-           closeConnection(connectionTest);
+          closeConnection(connectionTest);
        }
    }
    /**
@@ -148,7 +155,7 @@ public class Db
    
    }
    /**
-    * @authore Juan Delgado
+    * @author Juan Delgado
     * Takes a connection object and closes it.
     * @param cn 
     */
@@ -175,6 +182,43 @@ public class Db
            e.printStackTrace();
        }
    }
+<<<<<<< HEAD
+ /* @author eli */ 
+ private void dbInitTables() {
+        try {
+
+
+            String sql = null;
+            Connection conn = DriverManager.getConnection(DB_URL + DB_NAME, USER, PASS);
+            sql = "CREATE TABLE Users ( id int NOT NULL AUTO_INCREMENT, email VARCHAR(255), first varchar(255), last varchar(255),"
+                    + "password nvarchar(255), salt nvarchar(255), pos varchar(255), permission int(1), pic LONGBLOB, PRIMARY KEY (id))";
+
+            pstmt = conn.prepareStatement(sql);
+            pstmt.executeUpdate();
+
+            sql = "CREATE TABLE Courses (prefix varchar(4), courseNumber varchar(4), name varchar(30), course_xml LONGBLOB,"
+                    + " abet_xml LONGBLOB, outcomes_xml LONGBLOB"
+                    + ",PRIMARY KEY (courseNumber) )";
+
+            pstmt = conn.prepareStatement(sql);
+            pstmt.executeUpdate();
+
+            sql = "CREATE TABLE Style (name varchar(56), category varchar(56)," +
+                    "PRIMARY KEY (name) )";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.executeUpdate();
+
+            sql = "CREATE TABLE Reminders (reminder_id int, reminderName varchar(20), message varchar(256), DATE date, TIME time, PRIMARY KEY (reminderName),  "
+                    + " FOREIGN KEY (reminder_id) REFERENCES Users(id ))";
+
+            pstmt = conn.prepareStatement(sql);
+            pstmt.executeUpdate();
+
+            sql = "CREATE TABLE User_Courses( user_id int, course_prefix varchar(4), course_number varchar(4), course_name varchar(255), grade varchar(1), active int(2), hours FLOAT"
+                    + ", FOREIGN KEY (user_id) REFERENCES Users(id))";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.executeUpdate();
+=======
  private void dbInitTables()
    {
        try 
@@ -211,20 +255,61 @@ public class Db
                    + ", FOREIGN KEY (user_id) REFERENCES Users(id))";
            pstmt=conn.prepareStatement(sql);
            pstmt.executeUpdate();
+>>>>>>> 94e5316ce4566c325b600125155012859e852cf6
            /*
            sql="CREATE TABLE Xml ( name varchar(56), cat(56) "+" PRIMARY KEY name, FOREIGN KEY name)";
            
            pstmt.executeUpdate(sql); */
-           
-           pstmt.close();
-           
-       } catch (SQLException e) {
-           System.out.println("Error creating table: "+e.getMessage());       
-       }
-   } 
+
+            pstmt.close();
+
+        } catch (SQLException e) {
+            System.out.println("Error creating table: " + e.getMessage());
+        }
+    }
 
     
     /*@author eli */     
+<<<<<<< HEAD
+     public boolean login(String email, String password, User u) {
+        String sql;
+        String dbPass = null;
+        String dbSalt = null;
+        String dbFirst = null;
+        String dbLast = null;
+        String dbEmail = null;
+        String dbPos = null;
+        List<String> courses = null;
+
+        Util util = new Util();
+        String[] hashpass = new String[2];
+
+        sql = "SELECT * FROM Users WHERE email= ?";
+
+        try {
+            conn = DriverManager.getConnection(DB_URL + DB_NAME, USER, PASS);
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, email);
+            rs = pstmt.executeQuery();
+
+            if (rs.first()) {
+                dbPass = rs.getString("password");
+                dbSalt = rs.getString("salt");
+                dbFirst = rs.getString("first");
+                dbLast = rs.getString("last");
+                dbEmail = rs.getString("email");
+                dbPos = rs.getString("pos");
+            } else
+                return false;
+        } catch (SQLException e) {
+
+        }
+
+        try {
+            u = new User();
+            hashpass = util.encrypt(password, dbSalt);
+            if ((hashpass[0].equals(dbPass) && email.equals(dbEmail))) {
+=======
     public User login(User u)
     {
       String sql;
@@ -269,10 +354,24 @@ public class Db
             hashpass=util.encrypt(u.getPass(), dbSalt);
             if((hashpass[0].equals(dbPass)))
             {
+>>>>>>> 94e5316ce4566c325b600125155012859e852cf6
                 u.setEmail(dbEmail);
                 u.setFirst(dbFirst);
                 u.setLast(dbLast);
                 u.setPos(dbPos);
+<<<<<<< HEAD
+                return true;
+            }
+            else
+                return false;
+
+
+        } catch (Exception ex) {
+            Logger.getLogger(Db.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return true;
+=======
             }
             
         } 
@@ -282,10 +381,39 @@ public class Db
         }
       
         return u;
+>>>>>>> 94e5316ce4566c325b600125155012859e852cf6
 
     }
 
     /* @author Eli */
+<<<<<<< HEAD
+   public boolean register(User u) {
+        String sql;
+        int rowCount = 0;
+        Util util = new Util();
+        String[] passhash = new String[2];
+
+        try {
+            sql = "SELECT email FROM Users WHERE email = ? ";
+            conn = DriverManager.getConnection(DB_URL + DB_NAME, USER, PASS);
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, u.getEmail());
+            rs = pstmt.executeQuery();
+
+            if (!rs.first()) {
+                sql = "INSERT INTO Users (email, first, last, password, salt, pos) VALUES (?,?,?,?,?,?)";
+
+
+                try {
+                    passhash = util.encrypt(u.getPass(), u.getSalt());
+                    System.out.println("passwordlogin__>" + passhash[0] + "  salt__" + passhash[1]);
+
+                } catch (Exception ex) {
+                    Logger.getLogger(Db.class.getName()).log(Level.SEVERE, null, ex);
+                }
+
+                pstmt = conn.prepareStatement(sql);
+=======
     public boolean register(User u) 
     {
         String sql;
@@ -315,27 +443,26 @@ public class Db
                 }
                 
                 pstmt=conn.prepareStatement(sql);
+>>>>>>> 94e5316ce4566c325b600125155012859e852cf6
                 pstmt.setString(1, u.getEmail());
                 pstmt.setString(2, u.getFirst());
                 pstmt.setString(3, u.getLast());
                 pstmt.setString(4, passhash[0]);
                 pstmt.setString(5, passhash[1]);
                 pstmt.setString(6, u.getPos());
-                
+
                 pstmt.execute();
-                rowCount=pstmt.getUpdateCount();
+                rowCount = pstmt.getUpdateCount();
             }
-        } 
-        catch (SQLException e) 
-        {
+        } catch (SQLException e) {
 
             System.out.println("There is an error: " + e.getMessage());
 
-        } 
-        if(rowCount==1)
-        return true; 
-        else 
-        return false;
+        }
+        if (rowCount == 1)
+            return true;
+        else
+            return false;
     }   
 
 
@@ -346,23 +473,17 @@ public class Db
      * xml files must exist already in order for this function to work.
      * @param prefix
      * @param courseNumber
-     * @param courseName 
      */
-    public void newXml(String prefix, String courseNumber, String courseName) {
+    public void newXml(String prefix, String courseNumber) {
         String courseXMLPath = DirectoryStructure.getVACPAC_XML() + prefix + "-" + courseNumber + ".xml";
-        String abetXMLPath = DirectoryStructure.getVACPAC_XML() + prefix + "-" + courseNumber + "-abet.xml";
-        String outcomesXMLPath = DirectoryStructure.getVACPAC_XML() + prefix + "-" + courseNumber + "-outcomes.xml";
-        String sql = "INSERT INTO Courses(prefix, course_number, name, course_xml, abet_xml, outcomes_xml)"
-                + "VALUES(?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Courses(prefix, course_number, course_xml)"
+                + "VALUES(?, ?, ?)";
         try{
             conn = DriverManager.getConnection(DB_URL + DB_NAME,USER,PASS); //Connect to the database.
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, prefix);
             pstmt.setString(2, courseNumber);
-            pstmt.setString(3, courseName);
-            pstmt.setBinaryStream(4, new FileInputStream( new File(courseXMLPath)));
-            pstmt.setBinaryStream(5, new FileInputStream( new File(abetXMLPath)));
-            pstmt.setBinaryStream(6, new FileInputStream( new File(outcomesXMLPath)));
+            pstmt.setBinaryStream(3, new BufferedInputStream(new FileInputStream( new File(courseXMLPath))));
             pstmt.executeUpdate();
         }
         catch(SQLException e){
@@ -385,9 +506,9 @@ public class Db
         String sql = "SELECT * FROM Courses";
         File xmlFile;
         InputStream is;
-        FileOutputStream fs;
+        BufferedOutputStream fs;
         byte[] buffer; //Buffer to write the file.
-        try{
+        try {
             conn = DriverManager.getConnection(DB_URL + DB_NAME,USER,PASS); //Connect to the database
             stmt = conn.createStatement();
             rs = stmt.executeQuery(sql);
@@ -395,33 +516,9 @@ public class Db
                 //Read the course XML file
                 xmlFile = new File(DirectoryStructure.getVACPAC_XML() + rs.getString(1) + "-" + rs.getString(2) + ".xml");
                 xmlFile.createNewFile(); // Create the file if it does not exist;
-                fs = new FileOutputStream(xmlFile);
-                is = rs.getBinaryStream(4);
-                buffer = rs.getBytes(4); //Get size of the file in bytes
-                while(is.read(buffer) > 0){
-                    fs.write(buffer);
-                }
-                fs.close();
-                is.close();
-                
-                //Read the abet XML file
-                xmlFile = new File(DirectoryStructure.getVACPAC_XML() + rs.getString(1) + "-" + rs.getString(2) + "-abet.xml");
-                xmlFile.createNewFile(); // Create the file if it does not exist;
-                fs = new FileOutputStream(xmlFile);
-                is = rs.getBinaryStream(5);
-                buffer = rs.getBytes(5); //Get size of the file in bytes
-                while(is.read(buffer) > 0){
-                    fs.write(buffer);
-                }
-                fs.close();
-                is.close();
-                
-                //Read the outcome xml file
-                xmlFile = new File(DirectoryStructure.getVACPAC_XML() + rs.getString(1) + "-" + rs.getString(2) + "-outcomes.xml");
-                xmlFile.createNewFile(); // Create the file if it does not exist;
-                fs = new FileOutputStream(xmlFile);
-                is = rs.getBinaryStream(6);
-                buffer = rs.getBytes(6); //Get size of the file in bytes
+                fs = new BufferedOutputStream(new FileOutputStream(xmlFile));
+                is = rs.getBinaryStream(3);
+                buffer = rs.getBytes(3); //Get size of the file in bytes
                 while(is.read(buffer) > 0){
                     fs.write(buffer);
                 }
@@ -445,14 +542,108 @@ public class Db
     }
     /**
      * @author Juan Delgado
+     * This function will upload all the XML files to the database.
+     */
+    public void uploadXMLFromDirectoryToTheDatabase(){
+        String[] fileNames;
+        String[] currentFile;
+        String sql;
+        File dir;
+        try {
+            dir = new File(DirectoryStructure.getVACPAC_XML());
+            fileNames = dir.list();
+            System.out.println(fileNames.length);
+            for(int i = 0; i < fileNames.length; i+=3)
+            {
+                conn = DriverManager.getConnection(DB_URL + DB_NAME, USER, PASS);
+                currentFile = fileNames[i].split("-");
+                sql = "SELECT course_number FROM Courses WHERE "
+                        + "course_number = " + currentFile[1].split("\\.")[0]; //Use split to ensure the .xml part is left out of the prefix.
+                stmt = conn.createStatement();
+                rs = stmt.executeQuery(sql);
+                if(!rs.first())
+                    newXml(currentFile[0], currentFile[1].split("\\.")[0]); //Use split to ensure the .xml part is left out of the prefix.
+                rs.close();
+                stmt.close();
+            }
+        }
+        catch (SQLException e) {
+            e.getMessage();
+        }
+    }
+    /**
+     * @author Juan Delgado
      * Function to retrieve the css files from the database.
      */
     public void populateCSSFiles(){
         String sql = "SELECT * FROM Style";
-        File xmlFile;
+        File styleFile;
         InputStream is;
-        FileOutputStream fs;
-        byte[] buffer = new byte[1096];
+        BufferedOutputStream fs;
+        byte[] buffer;
+        
+        try {
+            conn = DriverManager.getConnection(DB_URL + DB_NAME, USER, PASS);
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery(sql);
+            
+            while(rs.next()) {
+                styleFile = new File(DirectoryStructure.getVACPAC_CSS()); //Get path to file.
+                styleFile.createNewFile(); //Create file if it does not exist.
+                fs = new BufferedOutputStream(new FileOutputStream(styleFile));
+                is = rs.getBinaryStream(2);
+                buffer = rs.getBytes(2);
+                while(is.read(buffer) > 0) {
+                    fs.write(buffer);
+                }
+                fs.close();
+                is.close();
+            }
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        finally {
+            closeConnection(conn);
+            closeStatement(stmt);
+        }
+    }
+    public void uploadStyleFiles() {
+        String[] fileNames;
+        File dir;
+        File styleFile;
+        InputStream is;
+        BufferedInputStream fs;
+        try {
+            dir = new File(DirectoryStructure.getVACPAC_CSS());
+            fileNames = dir.list();
+            conn = DriverManager.getConnection(DB_URL + DB_NAME, USER, PASS);
+            for(int i = 0; i < fileNames.length; i++){
+                String sql = "SELECT name FROM Style WHERE name = " + fileNames[i];
+                stmt = conn.createStatement();
+                rs = stmt.executeQuery(sql);
+                if(!rs.first()) {
+                    sql = "INSERT INTO Style(name, style_sheet)VALUES(?,?)";
+                    pstmt.setString(1, fileNames[i]);
+                    pstmt.setBinaryStream(2,fs = new BufferedInputStream(new FileInputStream(DirectoryStructure.getVACPAC_CSS() + fileNames[i])));
+                    pstmt.close();
+                    fs.close();
+                }
+                stmt.close();
+            }
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        finally {
+            closeConnection(conn);
+        }
     }
     /**
      * @author Juan Delgado will add the specified course to the user_courses tables that corresponds to the user id.
@@ -460,7 +651,58 @@ public class Db
      * @param courseToAdd 
      */
     public void addCourse(User user, Course courseToAdd) {
-        String sql = "INSERT INTO User_Courses(user_id, course_prefix";
+        String sql = "INSERT INTO User_Courses(user_id, course_prefix, course_number, coursse_name, grade, active, hours)Values"
+                + "((SELECT user_id FROM Users WHERE user_id = ?), ?, ?, ?";
+        try {
+            conn = DriverManager.getConnection(DB_URL + DB_NAME, USER, PASS);
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, user.getId());
+            pstmt.setString(2, courseToAdd.getCoursePrefix());
+            pstmt.setString(3, courseToAdd.getCourseNumber());
+            pstmt.setString(4, courseToAdd.getCourseName());
+            pstmt.setString(5, String.valueOf(courseToAdd.getGrade()));
+            pstmt.setInt(6, courseToAdd.getActive());
+            pstmt.setDouble(7, courseToAdd.getHours());
+        }
+        catch(SQLException e){
+            e.printStackTrace();
+        }
+    }
+   public User retrieveUserInfo(String email){
+        User retrievedUser = null;
+        ArrayList<Course> pastCourses = new ArrayList<>();
+        ArrayList<Course> currentCourses = new ArrayList<>();
+        try {
+            String sql = "SELECT * FROM Users WHERE email = " + email;
+            conn = DriverManager.getConnection(DB_URL + DB_NAME, USER, PASS);
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery(sql);
+            while(rs.next()){
+                retrievedUser = new User(rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5),
+                rs.getString(6),rs.getString(7),rs.getInt(8),rs.getInt(1));
+            }
+            stmt.close();
+            sql = "SELECT * FROM User_Courses WHERE user_id = " + retrievedUser.getId();
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery(sql);
+            while(rs.next()){
+                if(rs.getInt(6) == 0)
+                    pastCourses.add( new Course(rs.getString(2), rs.getString(3),rs.getString(4),rs.getInt(6),rs.getString(5).charAt(0),rs.getDouble(7)));
+                else
+                    currentCourses.add( new Course(rs.getString(2), rs.getString(3),rs.getString(4),rs.getInt(6),rs.getString(5).charAt(0),rs.getDouble(7)));
+            }
+            retrievedUser.addCurrentCourses(currentCourses);
+            retrievedUser.addPastCourses(pastCourses);
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+        }
+        finally{
+            closeConnection(conn);
+            closeStatement(stmt);
+        }
+        
+        return retrievedUser;
     }
 
     public void edCourse(/*OBJECT containing xml info like PREFIX, COURSE NUMBER, something unique*/) {
@@ -491,6 +733,10 @@ public class Db
         
          */
     }
+<<<<<<< HEAD
+
+ public Reminder addRem(String start, String end, String message, User u) {
+=======
     
     /**
      * @author Josue Rodriguez
@@ -507,6 +753,7 @@ public class Db
      * @return r will return an object of Reminder if it was created correctly, otherwise null.
      */
     public Reminder addRem(String start, String end, String message, User u) {
+>>>>>>> 94e5316ce4566c325b600125155012859e852cf6
         int id;
         String sql;
         String name;
