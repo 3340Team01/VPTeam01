@@ -19,7 +19,9 @@ import java.sql.Statement;
 import java.sql.ResultSet;
 //import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
+import java.sql.Timestamp;
 import java.util.List;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -39,7 +41,7 @@ public class Db
     //  Database credentials
     protected static final String USER = "root";
 
-    protected static final String PASS = "teamblack";
+    protected static final String PASS = "root";
 
     protected static final String DB_NAME = "Vaqpack";
 
@@ -55,7 +57,7 @@ public class Db
     * This constructor will automatically connect to the database and check the
     * server and check if the database exist. If not it will create it.
    */
-   private Db() 
+   Db() 
    {
        try
        {
@@ -199,8 +201,8 @@ public class Db
           pstmt=conn.prepareStatement(sql);
            pstmt.executeUpdate();
            
-           sql="CREATE TABLE Reminders (reminder_id int, reminderName varchar(20), message varchar(256), DATE date, TIME time, PRIMARY KEY (reminderName),  "
-                   + " FOREIGN KEY (reminder_id) REFERENCES Users(id ))";
+           sql="CREATE TABLE Reminders (reminder_id int, reminderName varchar(256), message varchar(256), StartTime timestamp,"
+                   + " EndTime timestamp, PRIMARY KEY (reminderName), FOREIGN KEY (reminder_id) REFERENCES Users(id))";
            
            pstmt=conn.prepareStatement(sql);
            pstmt.executeUpdate();
@@ -489,34 +491,116 @@ public class Db
         
          */
     }
+    
+    /**
+     * @author Josue Rodriguez
+     * 
+     * Inserts a new reminder in the reminder table, with the given user credentials,
+     * it will check for a reminder in the same time frame, if there exists one already there,
+     * it will reject.
+     * 
+     * @param start must be "yyyy-mm-dd hh:mm:ss" leading zeros may be omitted
+     * @param end must be "yyyy-mm-dd hh:mm:ss" leading zeros may be omitted, example "2016-02-01 07:30:00" or 
+     * "2016-2-1 7:30:00, SECONDS NEED TO BE ADDED"
+     * @param message
+     * @param u User object
+     * @return r will return an object of Reminder if it was created correctly, otherwise null.
+     */
+    public Reminder addRem(String start, String end, String message, User u) {
+        int id;
+        String sql;
+        String name;
+ 
+        Timestamp startTime = Timestamp.valueOf(start);
+        Timestamp endTime = Timestamp.valueOf(end);
+        name = UUID.randomUUID().toString();
+        
+        Reminder r = new Reminder(startTime, endTime, message, name, "");
+                
+        sql = "SELECT * FROM Users WHERE email = ? ";
+        
+        try{
+            conn = DriverManager.getConnection(DB_URL + DB_NAME,USER,PASS); //Connect to the database.
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, u.getEmail());
+            rs = pstmt.executeQuery();
+            
+            if(rs.first()){
+                id = rs.getInt(1);
+                rs = pstmt.executeQuery();
 
-    public void addRem(/*object/container with details concerning the reminder to be added, USER OBJ */) {
-        /*
-                TRY OPEN connection to DB
-                TRY INSERT INTO "REMINDER" TABLE, NEW ROW, contating detials from reminder object passed.
-                CHECK that the "reminder" to be added doesnt exist.
-                IF DOES NOT EXIST-> insert into table new row containing details from reminder object
+                sql = "INSERT INTO Reminders () SELECT * FROM (SELECT ?,?,?,?,?) AS tmp WHERE NOT EXISTS (" 
+                    + "SELECT reminder_id,StartTime,EndTime FROM Reminders WHERE reminder_id = ? " 
+                    + "AND ((StartTime = ?) OR (StartTime < ? AND EndTime > ?))"
+                    + "OR ((EndTime = ?) OR (StartTime < ? AND EndTime > ?))" 
+                    + "OR (StartTime > ? AND EndTime < ?)) LIMIT 1";
                 
-                extract crednetials from USER OBJ
-                SELECT FROM USER TABLE, row THAT CONTAINS USER crednetials
-                
-                FROM that row, go to COLUMN "reminder". 
-                Check that there is no link to the new reminder to be added.
-                return false if there is.
-                else
-                Create a link from "reminder" column to the correct row in REMINDER TABLE containg the USERS reminder item.
-                return true
+                pstmt = conn.prepareStatement(sql);
+                pstmt.setInt(1, id);
+                pstmt.setString(2, name);
+                pstmt.setString(3, message);
+                pstmt.setTimestamp(4, startTime);
+                pstmt.setTimestamp(5, endTime);
+                pstmt.setInt(6, id);
+                pstmt.setTimestamp(7, startTime);
+                pstmt.setTimestamp(8, startTime);
+                pstmt.setTimestamp(9, startTime);
+                pstmt.setTimestamp(10, endTime);
+                pstmt.setTimestamp(11, endTime);
+                pstmt.setTimestamp(12, endTime);
+                pstmt.setTimestamp(13, startTime);
+                pstmt.setTimestamp(14, endTime);
+                int i = pstmt.executeUpdate();
+                if(i == 1){
+                    System.out.println("Reminder added");
+                }
+                else{
+                    System.out.println("Time frame for reminder already occupied");
+                r = null;
+                }
+            }
+        }
         
-                * make sure the "reminder name" in the REMINDER TABLE CLOUMN "reminer_name" is unique. Extract from USER obj the email, extract from REMINDER obj the reminder name.
-                  combinde like <email@>_<reminder_name>
-        
-                 
-                
-                
-         */
+        catch(SQLException e){
+            e.printStackTrace();
+        }
+        finally {
+            closeConnection(conn);
+            closeStatement(pstmt);
+
+        }
+        return r;
     }
+    
+    /**
+     * @author Josue Rodriguez
+     * Remove the reminder from the user in the database
+     * @param r Reminder to remove
+     */
+    public void rmRem(Reminder r) {
+        String sql;
+        
+        sql = "DELETE FROM Reminders WHERE reminderName = ?";
+        
+        try{
+            conn = DriverManager.getConnection(DB_URL + DB_NAME,USER,PASS); //Connect to the database.
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, r.getReminderName());
+            int i = pstmt.executeUpdate();
 
-    public void rmRem(/*object/container with details concerning the reminder to be removed */) {
-        /* same as addRem, just the delte version, prety much*/
+            if(i ==1){
+                System.out.println("Reminder deleted");
+            }
+            else{
+                System.out.println("Reminder could not be deleted");
+            }
+         }
+        catch(SQLException e){
+            e.printStackTrace();
+        }
+        finally {
+            closeConnection(conn);
+            closeStatement(pstmt);
+        }
     }
 }
