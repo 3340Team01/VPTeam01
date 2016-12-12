@@ -539,10 +539,11 @@ public class Db
         ArrayList<Course> pastCourses = new ArrayList<>();
         ArrayList<Course> currentCourses = new ArrayList<>();
         try {
-            String sql = "SELECT * FROM Users WHERE email = " + email;
+            String sql = "SELECT * FROM Users WHERE email = ?";
             conn = DriverManager.getConnection(DB_URL + DB_NAME, USER, PASS);
-            stmt = conn.createStatement();
-            rs = stmt.executeQuery(sql);
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1,email);
+            rs = pstmt.executeQuery();
             while(rs.next()){
                 retrievedUser = new User(rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5),
                 rs.getString(6),rs.getString(7),rs.getInt(8),rs.getInt(1));
