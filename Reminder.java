@@ -25,6 +25,13 @@ public class Reminder{
 
     Reminder() {
     }
+    public Reminder(Reminder r) {
+        this.StartTIME = r.StartTIME;
+        this.EndTIME = r.EndTIME;
+        this.message = r.message;
+        this.reminderName = r.reminderName;
+        this.ReminderID = r.ReminderID;
+    }
 
     public Timestamp getStartTIME() {
         return StartTIME;
@@ -69,7 +76,4 @@ public class Reminder{
 
 }
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 94e5316ce4566c325b600125155012859e852cf6

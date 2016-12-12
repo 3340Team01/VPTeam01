@@ -23,10 +23,7 @@ import java.sql.ResultSet;
 //import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
-<<<<<<< HEAD
 import java.util.ArrayList;
-=======
->>>>>>> 94e5316ce4566c325b600125155012859e852cf6
 import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -64,7 +61,7 @@ public class Db
     * This constructor will automatically connect to the database and check the
     * server and check if the database exist. If not it will create it.
    */
-   Db() 
+   private Db() 
    {
        try
        {
@@ -182,7 +179,6 @@ public class Db
            e.printStackTrace();
        }
    }
-<<<<<<< HEAD
  /* @author eli */ 
  private void dbInitTables() {
         try {
@@ -218,44 +214,6 @@ public class Db
                     + ", FOREIGN KEY (user_id) REFERENCES Users(id))";
             pstmt = conn.prepareStatement(sql);
             pstmt.executeUpdate();
-=======
- private void dbInitTables()
-   {
-       try 
-       {
-           
-           
-           String sql=null;
-           Connection conn = DriverManager.getConnection(DB_URL + DB_NAME,USER,PASS);
-           sql = "CREATE TABLE Users ( id int NOT NULL AUTO_INCREMENT, email VARCHAR(255), first varchar(255), last varchar(255),"
-                   + "password nvarchar(255), salt nvarchar(255), pos varchar(255), permission int(1), pic LONGBLOB, PRIMARY KEY (id))";
-           
-           pstmt=conn.prepareStatement(sql);
-           pstmt.executeUpdate();
-           
-           sql="CREATE TABLE Courses (prefix varchar(4), courseNumber varchar(4), name varchar(30), course_xml LONGBLOB,"
-                   +" abet_xml LONGBLOB, outcomes_xml LONGBLOB"
-                   +",PRIMARY KEY (courseNumber) )";
-           
-           pstmt=conn.prepareStatement(sql);
-           pstmt.executeUpdate();
-           
-           sql="CREATE TABLE Style (name varchar(56), category varchar(56),"+
-                   "PRIMARY KEY (name) )";
-          pstmt=conn.prepareStatement(sql);
-           pstmt.executeUpdate();
-           
-           sql="CREATE TABLE Reminders (reminder_id int, reminderName varchar(256), message varchar(256), StartTime timestamp,"
-                   + " EndTime timestamp, PRIMARY KEY (reminderName), FOREIGN KEY (reminder_id) REFERENCES Users(id))";
-           
-           pstmt=conn.prepareStatement(sql);
-           pstmt.executeUpdate();
-           
-           sql="CREATE TABLE User_Courses( user_id int, course_prefix varchar(4), course_number varchar(4), course_name varchar(255), grade varchar(1), active int(2), hours FLOAT"
-                   + ", FOREIGN KEY (user_id) REFERENCES Users(id))";
-           pstmt=conn.prepareStatement(sql);
-           pstmt.executeUpdate();
->>>>>>> 94e5316ce4566c325b600125155012859e852cf6
            /*
            sql="CREATE TABLE Xml ( name varchar(56), cat(56) "+" PRIMARY KEY name, FOREIGN KEY name)";
            
@@ -270,7 +228,6 @@ public class Db
 
     
     /*@author eli */     
-<<<<<<< HEAD
      public boolean login(String email, String password, User u) {
         String sql;
         String dbPass = null;
@@ -309,57 +266,10 @@ public class Db
             u = new User();
             hashpass = util.encrypt(password, dbSalt);
             if ((hashpass[0].equals(dbPass) && email.equals(dbEmail))) {
-=======
-    public User login(User u)
-    {
-      String sql;
-      String dbPass=null;
-      String dbSalt=null;
-      String dbFirst=null;
-      String dbLast=null;
-      String dbEmail=null;
-      String dbPos=null;
-      List<String> courses=null;
-      
-      Util util=new Util();
-      String [] hashpass=new String[2];
-
-      sql="SELECT * FROM Users WHERE email= ?";
-
-      try
-      {   conn = DriverManager.getConnection(DB_URL + DB_NAME,USER,PASS);
-          pstmt=conn.prepareStatement(sql);
-          pstmt.setString(1, u.getEmail());
-          rs=pstmt.executeQuery();
-          
-         if(rs.first())
-         {
-             dbPass=rs.getString("password");
-             dbSalt=rs.getString("salt");
-             dbFirst=rs.getString("first");
-             dbLast=rs.getString("last");
-             dbEmail=rs.getString("email");
-             dbPos=rs.getString("pos");
-         }
-         else
-             return u;
-      }
-      catch(SQLException e)
-      {
-      
-      }
-      
-        try 
-        {
-            hashpass=util.encrypt(u.getPass(), dbSalt);
-            if((hashpass[0].equals(dbPass)))
-            {
->>>>>>> 94e5316ce4566c325b600125155012859e852cf6
                 u.setEmail(dbEmail);
                 u.setFirst(dbFirst);
                 u.setLast(dbLast);
                 u.setPos(dbPos);
-<<<<<<< HEAD
                 return true;
             }
             else
@@ -371,22 +281,10 @@ public class Db
         }
 
         return true;
-=======
-            }
-            
-        } 
-        catch (Exception ex) 
-        {
-            Logger.getLogger(Db.class.getName()).log(Level.SEVERE, null, ex);
-        }
-      
-        return u;
->>>>>>> 94e5316ce4566c325b600125155012859e852cf6
 
     }
 
     /* @author Eli */
-<<<<<<< HEAD
    public boolean register(User u) {
         String sql;
         int rowCount = 0;
@@ -413,37 +311,6 @@ public class Db
                 }
 
                 pstmt = conn.prepareStatement(sql);
-=======
-    public boolean register(User u) 
-    {
-        String sql;
-        int rowCount=0;
-        Util util=new Util();
-        String[] passhash=new String[2];
-        
-        try 
-        {
-            sql="SELECT email FROM Users WHERE email = ? ";
-            conn=DriverManager.getConnection(DB_URL+DB_NAME, USER, PASS);
-            pstmt=conn.prepareStatement(sql);
-            pstmt.setString(1, u.getEmail());
-            rs=pstmt.executeQuery();
-            
-            if(!rs.first())
-            {
-                sql="INSERT INTO Users (email, first, last, password, salt, pos) VALUES (?,?,?,?,?,?)";
-                
-                
-                try {
-                    passhash=util.encrypt(u.getPass(), u.getSalt());
-                    System.out.println("passwordlogin__>"+passhash[0]+"  salt__"+passhash[1]);
-                   
-                } catch (Exception ex) {
-                    Logger.getLogger(Db.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                
-                pstmt=conn.prepareStatement(sql);
->>>>>>> 94e5316ce4566c325b600125155012859e852cf6
                 pstmt.setString(1, u.getEmail());
                 pstmt.setString(2, u.getFirst());
                 pstmt.setString(3, u.getLast());
@@ -464,7 +331,6 @@ public class Db
         else
             return false;
     }   
-
 
     /**
      * @author Juan Delgado
@@ -705,55 +571,49 @@ public class Db
         return retrievedUser;
     }
 
-    public void edCourse(/*OBJECT containing xml info like PREFIX, COURSE NUMBER, something unique*/) {
-        /*
-            Our COURSES table only keeps track of vital details of a course. LIke prefix, number, hours, type of class...lecture or lab
-            EXTRACT the info from the object, WHERE "INFO" is PREFIX, COURSES NUMBER, HOURS...
-            OPEN DB CONNECTION
-            TRY
-            SELECT ROW form TABLE WHERE PREFIX is object.PREFIX
-            IF FAIL->reurn false, COURSE is not in DATABASE
-            ELSE INSERT into SELECTED ROW the updated info
-            CLOSE DB CONNECITON
-            
-        
-         */
-
+    public void editCourse(User user, char grade, String prefix) {
+        String sql = "UPDATE user_courses SET grade = ? WHERE user_id = ? AND course_prefix = ?";
+        try {
+            conn = DriverManager.getConnection(DB_URL + DB_NAME, USER, PASS);
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, Character.toString(grade));
+            pstmt.setInt(2, user.getId());
+            pstmt.setString(3, prefix);
+            pstmt.executeUpdate();
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+        }
+        finally {
+            closeConnection(conn);
+            closeStatement(pstmt);
+        }
     }
 
-    public void rmCourse(/* OBJECT contaiing USER credentials, COURSE to be removed. WHERE COURSE CAN be a string wtth course prefix or maybe a OBJECT itself*/) {
-        /* 
-            EXTRACT USER credentials
-            Open DB connection
-            TRY SELECT FROM USER "user crednetial"
-            FROM selected USER row, remove the above listed course from the COURSES COLUMN of the USER row
-            This will probably be done via "remove foreign key", seperate the link from the COURSES column of the specified USER and the specific course WITHIN THE COURSES TABLE.
-            Sever the link.
-            RETURN TRUE FOR SUCCESS, FALSE FOR FAILURE
-        
-         */
+    public void removemCourse(User user, String prefix) {
+        String sql = "SELECT * FROM user_courses WHERE user_id = " + user.getId();
+        try {
+            conn = DriverManager.getConnection(DB_URL + DB_NAME, USER, PASS);
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery(sql);
+            while (rs.next()) {
+                if(rs.getString(3).equalsIgnoreCase(prefix)) {
+                    sql = "DELETE FROM user_courses WHERE user_id = " + user.getId()
+                            + " AND course_prefix = " + prefix;
+                    stmt.executeUpdate(sql);
+                }
+            }
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+        finally {
+            closeConnection(conn);
+            closeStatement(stmt);
+        }
     }
-<<<<<<< HEAD
 
  public Reminder addRem(String start, String end, String message, User u) {
-=======
-    
-    /**
-     * @author Josue Rodriguez
-     * 
-     * Inserts a new reminder in the reminder table, with the given user credentials,
-     * it will check for a reminder in the same time frame, if there exists one already there,
-     * it will reject.
-     * 
-     * @param start must be "yyyy-mm-dd hh:mm:ss" leading zeros may be omitted
-     * @param end must be "yyyy-mm-dd hh:mm:ss" leading zeros may be omitted, example "2016-02-01 07:30:00" or 
-     * "2016-2-1 7:30:00, SECONDS NEED TO BE ADDED"
-     * @param message
-     * @param u User object
-     * @return r will return an object of Reminder if it was created correctly, otherwise null.
-     */
-    public Reminder addRem(String start, String end, String message, User u) {
->>>>>>> 94e5316ce4566c325b600125155012859e852cf6
         int id;
         String sql;
         String name;

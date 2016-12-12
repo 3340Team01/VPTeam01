@@ -88,8 +88,4 @@ public class Util
         }
         return salt;
     }*/
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 94e5316ce4566c325b600125155012859e852cf6
