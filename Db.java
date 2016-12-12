@@ -567,6 +567,7 @@ public class Db
         finally{
             closeConnection(conn);
             closeStatement(stmt);
+            closeStatement(pstmt);
         }
         
         return retrievedUser;
