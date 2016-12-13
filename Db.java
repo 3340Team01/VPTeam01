@@ -193,7 +193,7 @@ public class Db
             pstmt.executeUpdate();
 
             sql = "CREATE TABLE Courses (prefix varchar(4), courseNumber varchar(4), name varchar(30), course_xml LONGBLOB,"
-                    + ",PRIMARY KEY (courseNumber) )";
+                    + "PRIMARY KEY (courseNumber) )";
 
             pstmt = conn.prepareStatement(sql);
             pstmt.executeUpdate();
