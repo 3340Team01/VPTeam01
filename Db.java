@@ -77,7 +77,7 @@ public class Db
    /**
     * @author Juan Delgado
     * returns the database object. Which is a singleton.
-    * @return 
+    * @return Db
     */
    public static Db theDatabase()
    {
@@ -87,8 +87,7 @@ public class Db
    /**
     * @author Juan Delgado
     * This function will check if the database exist. If not it will call another
-    * function to create it.
-    * @param Connection 
+    * function to create it. 
     */
    private void dbCheck(){
        Connection connectionTest = null;
@@ -128,8 +127,7 @@ public class Db
    }
    /**
     * @author Juan Delgado
-    * initializes the Database for the VaqPaq project.
-    * @param connect 
+    * initializes the Database for the VaqPaq project. 
     */
    
    private void dbInit(){
@@ -364,7 +362,8 @@ public class Db
     }
     /**
      * @author Juan Delgado
-     * Automatically populates the xml files contained in the database.
+     * Automatically populates the xml files contained in the database. To the 
+     * directory.
      */
     public void populateXMLFiles()
     {
@@ -517,7 +516,7 @@ public class Db
      */
     public void addCourse(User user, Course courseToAdd) {
         String sql = "INSERT INTO User_Courses(user_id, course_prefix, course_number, coursse_name, grade, active, hours)Values"
-                + "((SELECT user_id FROM Users WHERE user_id = ?), ?, ?, ?";
+                + "((SELECT user_id FROM Users WHERE user_id = ?), ?, ?, ?.?,?,?";
         try {
             conn = DriverManager.getConnection(DB_URL + DB_NAME, USER, PASS);
             pstmt = conn.prepareStatement(sql);
