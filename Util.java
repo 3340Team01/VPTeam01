@@ -22,9 +22,16 @@ import javax.crypto.spec.SecretKeySpec;
 public class Util 
 {
     /**
-    *
-    * @author Michelle
-    */
+     * @auhor Michelle Garcia
+     * @param pass
+     * @param dbKey
+     * @return
+     * @throws Exception 
+     * 
+     * Accepts a password and a optional database key. If the key is not provided a key is generated and 
+     * applied to the encryption of the given password. In both cases the supplied password is encrypted and a key is
+     * used. Both the encrypted password and key are placed in a sting array and returned back.
+     */
 
     public String []  encrypt(String pass, String dbKey) throws Exception
     {   

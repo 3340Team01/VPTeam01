@@ -177,7 +177,15 @@ public class Db
            e.printStackTrace();
        }
    }
- /* @author eli */ 
+ /**
+  * @author Eli
+  *
+  * 
+  * @param none
+  * @return void
+  * 
+  * Creates tables in the database
+  */ 
  private void dbInitTables() {
         try {
 
@@ -224,7 +232,18 @@ public class Db
     }
 
     
-    /*@author eli */     
+    /**
+     * @author Eli
+     * @param email
+     * @param password
+     * @param u
+     * @return 
+     * 
+     * accepts a password, email and user object, u. Looks for email on database.
+     * If found then compares entered password vs password in database. Users Util class to encrypt
+     * the password that is passed before comparing. If passwords match, populates Object U with credentials and
+     * then return true. Will return false if any verification fails.
+     */   
      public boolean login(String email, String password, User u) {
         String sql;
         String dbPass = null;
@@ -281,7 +300,15 @@ public class Db
 
     }
 
-    /* @author Eli */
+    /**
+     * @author Eli
+     * @param u
+     * @return 
+     * 
+     * Accepts a User class object u. Extracts credentials from u. Searches database for given email
+     * If found, will return false to avoid duplicate entries. If not found entries a new row in users table with 
+     * all provided credentials and returns true
+     */
    public boolean register(User u) {
         String sql;
         int rowCount = 0;

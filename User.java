@@ -10,8 +10,11 @@ import java.util.List;
 import javafx.scene.image.Image;
 
 /**
- *
- * @author E
+ * 
+ * @author Eli
+ * 
+ * container class to pass credentials to and from database.
+ * 
  */
 public class User {
 
